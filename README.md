@@ -11,6 +11,7 @@ AssetClassGenerator.exe </path/to/typeTree1.txt> [/path/to/typeTree2.txt] ...
 1. Classes with the same name but different fields are automatically detected and renamed with a suffix `_1`, `_2`, etc.
 2. Invalid field names are automatically renamed in camelCase with attribute `[SerdeMemberOptions(Rename = "...")]` applied for storing the original field name. (Beta)
 3. Some "well known" value types are skipped: `Colorf`, `Matrix4x4f`, `Quaternionf`, `Vector2f`, `Vector3f`, `Vector4f`, `GUID`, `Hash128`
+4. If the **first** field of the root `UnityObject` class is `string m_Name`, then the class will inherit `NamedObject` instead of default `UnityObject` and the first field will be removed.
 
 ## Example
 - [Type tree](#type-tree)
