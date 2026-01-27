@@ -1,5 +1,4 @@
 ﻿using AssetParser.TypeTreeUtils;
-using System.ComponentModel;
 using System.Text;
 
 namespace AssetClassGenerator;

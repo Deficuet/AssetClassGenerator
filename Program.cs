@@ -46,8 +46,6 @@ public class MainClass
                     using var outputFile = new StreamWriter(Path.Combine("./out", fileName));
                     var generator = new ClassCodeGenerator(rootNode);
                     generator.WriteCode(outputFile);
-                    //generator.Generate();
-                    //generator.WriteGeneratedCode(outputFile);
                 }
                 else if (Directory.Exists(path))
                 {
