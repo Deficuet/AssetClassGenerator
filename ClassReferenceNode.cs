@@ -7,7 +7,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 {
     private static readonly HashSet<string> s_definedValueTypes =
     [
-        "Colorf", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", "GUID",
+        "Colorf", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", "GUID", "Hash128"
     ];
 
     public readonly ClassReferenceNode? parent;
