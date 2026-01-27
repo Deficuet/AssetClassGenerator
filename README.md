@@ -305,106 +305,66 @@ AnimatorController Base -1 False
 ### Generated classes
 ```C#
 [GenerateSerde]
-public partial record AnimationClip : NamedObject
+public partial record AnimatorController : NamedObject
 {
-    public required bool m_Legacy;
-    public required bool m_Compressed;
-    public required bool m_UseHighQualityCurve;
-    public required QuaternionCurve[] m_RotationCurves;
-    public required CompressedAnimationCurve[] m_CompressedRotationCurves;
-    public required Vector3Curve[] m_EulerCurves;
-    public required Vector3Curve[] m_PositionCurves;
-    public required Vector3Curve[] m_ScaleCurves;
-    public required FloatCurve[] m_FloatCurves;
-    public required PPtrCurve[] m_PPtrCurves;
-    public required float m_SampleRate;
-    public required int m_WrapMode;
-    public required AABB m_Bounds;
-    public required uint m_MuscleClipSize;
-    public required ClipMuscleConstant m_MuscleClip;
-    public required AnimationClipBindingConstant m_ClipBindingConstant;
-    public required bool m_HasGenericRootTransform;
-    public required bool m_HasMotionFloatCurves;
-    public required AnimationEvent[] m_Events;
+    public required uint m_ControllerSize;
+    public required ControllerConstant m_Controller;
+    public required MultiDictionary<uint, string> m_TOS;
+    public required PPtr<AnimationClip>[] m_AnimationClips;
+    public required StateMachineBehaviourVectorDescription m_StateMachineBehaviourVectorDescription;
+    public required PPtr<MonoBehaviour>[] m_StateMachineBehaviours;
+    public required bool m_MultiThreadedStateMachine;
 }
 
 [GenerateSerde]
-public partial record Keyframe_1
+public partial record HumanPoseMask
 {
-    public required float time;
-    [SerdeMemberOptions(Rename = "value")]
-    public required Quaternionf value_;
-    public required Quaternionf inSlope;
-    public required Quaternionf outSlope;
-    public required int weightedMode;
-    public required Quaternionf inWeight;
-    public required Quaternionf outWeight;
+    public required uint word0;
+    public required uint word1;
+    public required uint word2;
 }
 
 [GenerateSerde]
-public partial record Keyframe_2
+public partial record SkeletonMaskElement
 {
-    public required float time;
-    [SerdeMemberOptions(Rename = "value")]
-    public required Vector3f value_;
-    public required Vector3f inSlope;
-    public required Vector3f outSlope;
-    public required int weightedMode;
-    public required Vector3f inWeight;
-    public required Vector3f outWeight;
+    public required uint m_PathHash;
+    public required float m_Weight;
 }
 
 [GenerateSerde]
-public partial record Keyframe_3
+public partial record ConditionConstant
 {
-    public required float time;
-    [SerdeMemberOptions(Rename = "value")]
-    public required float value_;
-    public required float inSlope;
-    public required float outSlope;
-    public required int weightedMode;
-    public required float inWeight;
-    public required float outWeight;
+    public required uint m_ConditionMode;
+    public required uint m_EventID;
+    public required float m_EventThreshold;
+    public required float m_ExitTime;
 }
 
 [GenerateSerde]
-public partial record PackedBitVector_1
+public partial record Blend1dDataConstant
 {
-    public required uint m_NumItems;
-    public required byte[] m_Data;
-    public required byte m_BitSize;
+    public required float[] m_ChildThresholdArray;
 }
 
 [GenerateSerde]
-public partial record PackedBitVector_2
+public partial record MotionNeighborList
 {
-    public required uint m_NumItems;
-    public required byte[] m_Data;
+    public required uint[] m_NeighborArray;
 }
 
 [GenerateSerde]
-public partial record PackedBitVector_3
+public partial record BlendDirectDataConstant
 {
-    public required uint m_NumItems;
-    public required float m_Range;
-    public required float m_Start;
-    public required byte[] m_Data;
-    public required byte m_BitSize;
+    public required uint[] m_ChildBlendEventIDArray;
+    public required bool m_NormalizedBlendValues;
 }
 
 [GenerateSerde]
-public partial record PPtrKeyframe
+public partial record ValueConstant
 {
-    public required float time;
-    [SerdeMemberOptions(Rename = "value")]
-    public required PPtr<UnityObject> value_;
-}
-
-[GenerateSerde]
-public partial record AABB
-{
-    public required Vector3f m_Center;
-    public required Vector3f m_Extent;
+    public required uint m_ID;
+    public required uint m_Type;
+    public required uint m_Index;
 }
 
 [GenerateSerde]
@@ -425,227 +385,257 @@ public partial record float4
 }
 
 [GenerateSerde]
-public partial record StreamedClip
+public partial record StateKey
 {
-    public required uint[] data;
-    public required ushort curveCount;
-    public required ushort discreteCurveCount;
+    public required uint m_StateID;
+    public required int m_LayerIndex;
 }
 
 [GenerateSerde]
-public partial record DenseClip
+public partial record StateRange
 {
-    public required int m_FrameCount;
-    public required uint m_CurveCount;
-    public required float m_SampleRate;
-    public required float m_BeginTime;
-    public required float[] m_SampleArray;
+    public required uint m_StartIndex;
+    public required uint m_Count;
 }
 
 [GenerateSerde]
-public partial record ConstantClip
+public partial record SkeletonMask
 {
-    public required float[] data;
+    public required SkeletonMaskElement[] m_Data;
 }
 
 [GenerateSerde]
-public partial record ValueDelta
+public partial record OffsetPtr_1
 {
-    public required float m_Start;
-    public required float m_Stop;
+    public required ConditionConstant data;
 }
 
 [GenerateSerde]
-public partial record GenericBinding
+public partial record OffsetPtr_2
 {
-    public required uint path;
-    public required uint attribute;
-    public required PPtr<UnityObject> script;
-    public required int typeID;
-    public required byte customType;
-    public required byte isPPtrCurve;
-    public required byte isIntCurve;
-    public required byte isSerializeReferenceCurve;
+    public required Blend1dDataConstant data;
 }
 
 [GenerateSerde]
-public partial record AnimationEvent
+public partial record OffsetPtr_3
 {
-    public required float time;
-    public required string functionName;
-    public required string data;
-    public required PPtr<UnityObject> objectReferenceParameter;
-    public required float floatParameter;
-    public required int intParameter;
-    public required int messageOptions;
+    public required BlendDirectDataConstant data;
 }
 
 [GenerateSerde]
-public partial record AnimationCurve_1
+public partial record OffsetPtr_4
 {
-    public required Keyframe_1[] m_Curve;
-    public required int m_PreInfinity;
-    public required int m_PostInfinity;
-    public required int m_RotationOrder;
+    public required SkeletonMask data;
 }
 
 [GenerateSerde]
-public partial record AnimationCurve_2
+public partial record OffsetPtr_5
 {
-    public required Keyframe_2[] m_Curve;
-    public required int m_PreInfinity;
-    public required int m_PostInfinity;
-    public required int m_RotationOrder;
+    public required Blend2dDataConstant data;
 }
 
 [GenerateSerde]
-public partial record AnimationCurve_3
+public partial record OffsetPtr_6
 {
-    public required Keyframe_3[] m_Curve;
-    public required int m_PreInfinity;
-    public required int m_PostInfinity;
-    public required int m_RotationOrder;
+    public required ValueArrayConstant data;
 }
 
 [GenerateSerde]
-public partial record CompressedAnimationCurve
+public partial record OffsetPtr_7
 {
-    public required string m_Path;
-    public required PackedBitVector_1 m_Times;
-    public required PackedBitVector_2 m_Values;
-    public required PackedBitVector_3 m_Slopes;
-    public required int m_PreInfinity;
-    public required int m_PostInfinity;
+    public required ValueArray data;
 }
 
 [GenerateSerde]
-public partial record PPtrCurve
+public partial record OffsetPtr_8
 {
-    public required PPtrKeyframe[] curve;
-    public required string attribute;
-    public required string path;
-    public required uint classID;
-    public required PPtr<MonoScript> script;
-    public required int flags;
+    public required TransitionConstant data;
 }
 
 [GenerateSerde]
-public partial record xform
+public partial record OffsetPtr_9
 {
-    public required float3 t;
-    public required float4 q;
-    public required float3 s;
+    public required SelectorTransitionConstant data;
 }
 
 [GenerateSerde]
-public partial record Clip
+public partial record OffsetPtr_10
 {
-    public required StreamedClip m_StreamedClip;
-    public required DenseClip m_DenseClip;
-    public required ConstantClip m_ConstantClip;
+    public required LayerConstant data;
 }
 
 [GenerateSerde]
-public partial record AnimationClipBindingConstant
+public partial record OffsetPtr_11
 {
-    public required GenericBinding[] genericBindings;
-    public required PPtr<UnityObject>[] pptrCurveMapping;
+    public required BlendTreeNodeConstant data;
 }
 
 [GenerateSerde]
-public partial record QuaternionCurve
+public partial record OffsetPtr_12
 {
-    public required AnimationCurve_1 curve;
-    public required string path;
+    public required SelectorStateConstant data;
 }
 
 [GenerateSerde]
-public partial record Vector3Curve
+public partial record OffsetPtr_13
 {
-    public required AnimationCurve_2 curve;
-    public required string path;
+    public required BlendTreeConstant data;
 }
 
 [GenerateSerde]
-public partial record FloatCurve
+public partial record OffsetPtr_14
 {
-    public required AnimationCurve_3 curve;
-    public required string attribute;
-    public required string path;
-    public required uint classID;
-    public required PPtr<MonoScript> script;
-    public required int flags;
+    public required StateConstant data;
 }
 
 [GenerateSerde]
-public partial record HumanGoal
+public partial record OffsetPtr_15
 {
-    public required xform m_X;
-    public required float m_WeightT;
-    public required float m_WeightR;
-    public required float3 m_HintT;
-    public required float m_HintWeightT;
+    public required StateMachineConstant data;
 }
 
 [GenerateSerde]
-public partial record HandPose
+public partial record Blend2dDataConstant
 {
-    public required xform m_GrabX;
-    public required float[] m_DoFArray;
-    public required float m_Override;
-    public required float m_CloseOpen;
-    public required float m_InOut;
-    public required float m_Grab;
+    public required Vector2f[] m_ChildPositionArray;
+    public required float[] m_ChildMagnitudeArray;
+    public required Vector2f[] m_ChildPairVectorArray;
+    public required float[] m_ChildPairAvgMagInvArray;
+    public required MotionNeighborList[] m_ChildNeighborListArray;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr
+public partial record ValueArrayConstant
 {
-    public required Clip data;
+    public required ValueConstant[] m_ValueArray;
 }
 
 [GenerateSerde]
-public partial record HumanPose
+public partial record ValueArray
 {
-    public required xform m_RootX;
-    public required float3 m_LookAtPosition;
-    public required float4 m_LookAtWeight;
-    public required HumanGoal[] m_GoalArray;
-    public required HandPose m_LeftHandPose;
-    public required HandPose m_RightHandPose;
-    public required float[] m_DoFArray;
-    public required float3[] m_TDoFArray;
+    public required float3[] m_PositionValues;
+    public required float4[] m_QuaternionValues;
+    public required float3[] m_ScaleValues;
+    public required float[] m_FloatValues;
+    public required int[] m_IntValues;
+    public required bool[] m_BoolValues;
 }
 
 [GenerateSerde]
-public partial record ClipMuscleConstant
+public partial record StateMachineBehaviourVectorDescription
 {
-    public required HumanPose m_DeltaPose;
-    public required xform m_StartX;
-    public required xform m_StopX;
-    public required xform m_LeftFootStartX;
-    public required xform m_RightFootStartX;
-    public required float3 m_AverageSpeed;
-    public required OffsetPtr m_Clip;
-    public required float m_StartTime;
-    public required float m_StopTime;
-    public required float m_OrientationOffsetY;
-    public required float m_Level;
+    public required MultiDictionary<StateKey, StateRange> m_StateMachineBehaviourRanges;
+    public required uint[] m_StateMachineBehaviourIndices;
+}
+
+[GenerateSerde]
+public partial record TransitionConstant
+{
+    public required OffsetPtr_1[] m_ConditionConstantArray;
+    public required uint m_DestinationState;
+    public required uint m_FullPathID;
+    public required uint m_ID;
+    public required uint m_UserID;
+    public required float m_TransitionDuration;
+    public required float m_TransitionOffset;
+    public required float m_ExitTime;
+    public required bool m_HasExitTime;
+    public required bool m_HasFixedDuration;
+    public required int m_InterruptionSource;
+    public required bool m_OrderedInterruption;
+    public required bool m_CanTransitionToSelf;
+}
+
+[GenerateSerde]
+public partial record SelectorTransitionConstant
+{
+    public required uint m_Destination;
+    public required OffsetPtr_1[] m_ConditionConstantArray;
+}
+
+[GenerateSerde]
+public partial record LayerConstant
+{
+    public required uint m_StateMachineIndex;
+    public required uint m_StateMachineSynchronizedLayerIndex;
+    public required HumanPoseMask m_BodyMask;
+    public required OffsetPtr_4 m_SkeletonMask;
+    public required uint m_Binding;
+    [SerdeMemberOptions(Rename = "(int&)m_LayerBlendingMode")]
+    public required int intMlayerblendingmode;
+    public required float m_DefaultWeight;
+    public required bool m_IKPass;
+    public required bool m_SyncedLayerAffectsTiming;
+}
+
+[GenerateSerde]
+public partial record BlendTreeNodeConstant
+{
+    public required uint m_BlendType;
+    public required uint m_BlendEventID;
+    public required uint m_BlendEventYID;
+    public required uint[] m_ChildIndices;
+    public required OffsetPtr_2 m_Blend1dData;
+    public required OffsetPtr_5 m_Blend2dData;
+    public required OffsetPtr_3 m_BlendDirectData;
+    public required uint m_ClipID;
+    public required float m_Duration;
     public required float m_CycleOffset;
-    public required float m_AverageAngularSpeed;
-    public required int[] m_IndexArray;
-    public required ValueDelta[] m_ValueArrayDelta;
-    public required float[] m_ValueArrayReferencePose;
     public required bool m_Mirror;
-    public required bool m_LoopTime;
-    public required bool m_LoopBlend;
-    public required bool m_LoopBlendOrientation;
-    public required bool m_LoopBlendPositionY;
-    public required bool m_LoopBlendPositionXZ;
-    public required bool m_StartAtOrigin;
-    public required bool m_KeepOriginalOrientation;
-    public required bool m_KeepOriginalPositionY;
-    public required bool m_KeepOriginalPositionXZ;
-    public required bool m_HeightFromFeet;
+}
+
+[GenerateSerde]
+public partial record SelectorStateConstant
+{
+    public required OffsetPtr_9[] m_TransitionConstantArray;
+    public required uint m_FullPathID;
+    public required bool m_IsEntry;
+}
+
+[GenerateSerde]
+public partial record BlendTreeConstant
+{
+    public required OffsetPtr_11[] m_NodeArray;
+}
+
+[GenerateSerde]
+public partial record StateConstant
+{
+    public required OffsetPtr_8[] m_TransitionConstantArray;
+    public required int[] m_BlendTreeConstantIndexArray;
+    public required OffsetPtr_13[] m_BlendTreeConstantArray;
+    public required uint m_NameID;
+    public required uint m_PathID;
+    public required uint m_FullPathID;
+    public required uint m_TagID;
+    public required uint m_SpeedParamID;
+    public required uint m_MirrorParamID;
+    public required uint m_CycleOffsetParamID;
+    public required uint m_TimeParamID;
+    public required float m_Speed;
+    public required float m_CycleOffset;
+    public required bool m_IKOnFeet;
+    public required bool m_WriteDefaultValues;
+    public required bool m_Loop;
+    public required bool m_Mirror;
+}
+
+[GenerateSerde]
+public partial record StateMachineConstant
+{
+    public required OffsetPtr_14[] m_StateConstantArray;
+    public required OffsetPtr_8[] m_AnyStateTransitionConstantArray;
+    public required OffsetPtr_12[] m_SelectorStateConstantArray;
+    public required uint m_DefaultState;
+    public required uint m_SynchronizedLayerCount;
+}
+
+[GenerateSerde]
+public partial record ControllerConstant
+{
+    public required OffsetPtr_10[] m_LayerArray;
+    public required OffsetPtr_15[] m_StateMachineArray;
+    public required OffsetPtr_6 m_Values;
+    public required OffsetPtr_7 m_DefaultValues;
 }
 ```
