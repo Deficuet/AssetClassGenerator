@@ -115,6 +115,20 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         }
     }
 
+    private string RootClassPreProcess()
+    {
+        var firstField = typeTreeNode.children[0];
+        if (firstField.DataType == NodeDataType.String && firstField.name == "m_Name")
+        {
+            children.RemoveAt(0);
+            return "NamedObject";
+        }
+        else
+        {
+            return "UnityObject";
+        }
+    }
+
     public string GenerateCSharpClass()
     {
         if (typeTreeNode.DataType != NodeDataType.Class) 
@@ -126,7 +140,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         sb.Append($"public partial record {GetTypeName()}");
         if (parent is null)
         {
-            sb.Append(" : UnityObject");
+            sb.Append($" : {RootClassPreProcess()}");
         }
         sb.AppendLine();
         sb.AppendLine("{");
