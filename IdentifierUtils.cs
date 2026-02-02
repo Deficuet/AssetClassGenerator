@@ -94,7 +94,7 @@ public static class IdentifierUtils
                 var tk = tokens[i];
                 // Capitalize first letter of token, keep rest as-is (all lowercased already).
                 sb.Append(char.ToUpperInvariant(tk[0]));
-                if (tk.Length > 1) sb.Append(tk.Substring(1));
+                if (tk.Length > 1) sb.Append(tk.AsSpan(1));
             }
 
             result = sb.ToString();
@@ -119,11 +119,22 @@ public static class IdentifierUtils
         return result;
     }
 
+    private static readonly Dictionary<string, string> s_typeNameRemap = new()
+    {
+        { "PPtr<Object>", "PPtr<UnityObject>" },
+        { "Matrix4x4f", "Matrix4x4" },
+        { "Quaternionf", "Quaternion" }, 
+        { "Vector2f", "Vector2" }, 
+        { "Vector3f", "Vector3" }, 
+        { "Vector4f", "Vector4" },
+        { "float3", "Vector3" }
+    };
+
     public static string RemapTypeName(string typeName)
     {
-        if (typeName == "PPtr<Object>")
+        if (s_typeNameRemap.TryGetValue(typeName, out var remapped))
         {
-            return "PPtr<UnityObject>";
+            return remapped;
         }
         return typeName;
     }

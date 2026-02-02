@@ -1,14 +1,26 @@
 ﻿using AssetParser.TypeTreeUtils;
 using System.Text;
+using System.Xml.Linq;
 
 namespace AssetClassGenerator;
 
 public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 {
-    private static readonly HashSet<string> s_definedValueTypes =
+    private static readonly HashSet<string> s_wellKnownValueTypes =
     [
-        "Colorf", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", "GUID", "Hash128"
+        "Colorf", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", 
+        "GUID", "Hash128", "float3",
     ];
+
+    private static readonly Dictionary<string, string> s_valueTypesDelegateMap = new()
+    {
+        { "Matrix4x4f", "Matrix4x4Proxy" },
+        { "Quaternionf", "QuaternionProxy" },
+        { "Vector2f", "Vector2Proxy" },
+        { "Vector3f", "Vector3Proxy" },
+        { "Vector4f", "Vector4Proxy" },
+        { "float3", "Vector3Proxy" },
+    };
 
     public readonly ClassReferenceNode? parent;
     public readonly ClassReferenceNode? classRefParent = null;
@@ -24,7 +36,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 
     private bool IsWellKnownClass()
     {
-        if (s_definedValueTypes.Contains(typeTreeNode.type))
+        if (s_wellKnownValueTypes.Contains(typeTreeNode.type))
         {
             return true;
         }
@@ -107,6 +119,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
                 NodeDataType.Char or NodeDataType.WideChar => "char",
                 NodeDataType.Bool => "bool",
                 NodeDataType.Guid => "Guid",
+                NodeDataType.Hash128 => "Hash128",
                 NodeDataType.ByteArray or NodeDataType.Typeless => "byte[]",
                 NodeDataType.String => "string",
                 NodeDataType.Class => IdentifierUtils.RemapTypeName(typeTreeNode.type),
@@ -117,16 +130,28 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 
     private string RootClassPreProcess()
     {
-        var firstField = typeTreeNode.children[0];
-        if (firstField.DataType == NodeDataType.String && firstField.name == "m_Name")
+        if (typeTreeNode.children[0] is { DataType: NodeDataType.String, name: "m_Name" })
         {
             children.RemoveAt(0);
             return "NamedObject";
         }
-        else
+        else if (typeTreeNode.children[0] is { DataType: NodeDataType.Class, type: "PPtr<GameObject>", name: "m_GameObject" } )
         {
-            return "UnityObject";
+            children.RemoveAt(0);
+            if (typeTreeNode.children[1] is { DataType: NodeDataType.UInt8, name: "m_Enabled" })
+            {
+                children.RemoveAt(0);
+                if (typeTreeNode.children[2] is { DataType: NodeDataType.Class, type: "PPtr<MonoScript>", name: "m_Script" } &&
+                    typeTreeNode.children[3] is { DataType: NodeDataType.String, name: "m_Name" })
+                {
+                    children.RemoveRange(0, 2);
+                    return "MonoBehaviour";
+                }
+                return "Behaviour";
+            }
+            return "Component";
         }
+        return "UnityObject";
     }
 
     public string GenerateCSharpClass()
@@ -146,6 +171,8 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         sb.AppendLine("{");
         foreach (var childNode in children)
         {
+            var typeName = childNode.GetTypeName();
+            var memberOptionsMap = new Dictionary<string, string>();
             string varName;
             if (IdentifierUtils.IsValidIdentifier(childNode.typeTreeNode.name))
             {
@@ -154,9 +181,21 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
             else
             {
                 varName = IdentifierUtils.ToCamelCaseIdentifier(childNode.typeTreeNode.name);
-                sb.AppendLine($"    [SerdeMemberOptions(Rename = \"{childNode.typeTreeNode.name}\")]");
+                memberOptionsMap.Add("Rename", $"\"{childNode.typeTreeNode.name}\"");
             }
-            var typeName = childNode.GetTypeName();
+            if (s_valueTypesDelegateMap.TryGetValue(childNode.typeTreeNode.type, out var proxyName))
+            {
+                memberOptionsMap.Add("Proxy", $"typeof({proxyName})");
+            }
+            if (memberOptionsMap.Count > 0)
+            {
+                sb.Append("    [SerdeMemberOptions(");
+                var memberOptionsStr =
+                    from item in memberOptionsMap
+                    select $"{item.Key} = {item.Value}";
+                sb.Append(string.Join(", ", memberOptionsStr));
+                sb.AppendLine(")]");
+            }
             sb.Append(new string(' ', 4));
             sb.Append("public required ");
             sb.Append($"{typeName} ");

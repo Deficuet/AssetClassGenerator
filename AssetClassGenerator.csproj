@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Deficuet.AssetParser" Version="0.1.0-alpha.12" />
+    <PackageReference Include="Deficuet.AssetParser" Version="0.1.0-alpha.16" />
   </ItemGroup>
 
 </Project>
