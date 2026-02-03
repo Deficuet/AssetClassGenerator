@@ -1,6 +1,5 @@
 ﻿using AssetParser.TypeTreeUtils;
 using System.Text;
-using System.Xml.Linq;
 
 namespace AssetClassGenerator;
 
@@ -14,12 +13,11 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 
     private static readonly Dictionary<string, string> s_valueTypesDelegateMap = new()
     {
-        { "Matrix4x4f", "Matrix4x4Proxy" },
-        { "Quaternionf", "QuaternionProxy" },
-        { "Vector2f", "Vector2Proxy" },
-        { "Vector3f", "Vector3Proxy" },
-        { "Vector4f", "Vector4Proxy" },
-        { "float3", "Vector3Proxy" },
+        { "Matrix4x4", "Matrix4x4Proxy" },
+        { "Quaternion", "QuaternionProxy" },
+        { "Vector2", "Vector2Proxy" },
+        { "Vector3", "Vector3Proxy" },
+        { "Vector4", "Vector4Proxy" },
     };
 
     public readonly ClassReferenceNode? parent;
@@ -160,15 +158,18 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         {
             throw new InvalidOperationException($"Node {typeTreeNode.name}({typeTreeNode.type}, {typeTreeNode.DataType}) is not a class.");
         }
-        var sb = new StringBuilder();
-        sb.AppendLine("[GenerateSerde]");
-        sb.Append($"public partial record {GetTypeName()}");
+        var classAttrBuilder = new StringBuilder();
+        classAttrBuilder.AppendLine("[GenerateSerde]");
+        var externalProxyNames = new HashSet<string>();
+
+        var classBodyBuilder = new StringBuilder();
+        classBodyBuilder.Append($"public partial record {GetTypeName()}");
         if (parent is null)
         {
-            sb.Append($" : {RootClassPreProcess()}");
+            classBodyBuilder.Append($" : {RootClassPreProcess()}");
         }
-        sb.AppendLine();
-        sb.AppendLine("{");
+        classBodyBuilder.AppendLine();
+        classBodyBuilder.AppendLine("{");
         foreach (var childNode in children)
         {
             var typeName = childNode.GetTypeName();
@@ -183,27 +184,34 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
                 varName = IdentifierUtils.ToCamelCaseIdentifier(childNode.typeTreeNode.name);
                 memberOptionsMap.Add("Rename", $"\"{childNode.typeTreeNode.name}\"");
             }
-            if (s_valueTypesDelegateMap.TryGetValue(childNode.typeTreeNode.type, out var proxyName))
+            if (s_valueTypesDelegateMap.ContainsKey(typeName))
             {
-                memberOptionsMap.Add("Proxy", $"typeof({proxyName})");
+                externalProxyNames.Add(typeName);
             }
             if (memberOptionsMap.Count > 0)
             {
-                sb.Append("    [SerdeMemberOptions(");
+                classBodyBuilder.Append("    [SerdeMemberOptions(");
                 var memberOptionsStr =
                     from item in memberOptionsMap
                     select $"{item.Key} = {item.Value}";
-                sb.Append(string.Join(", ", memberOptionsStr));
-                sb.AppendLine(")]");
+                classBodyBuilder.Append(string.Join(", ", memberOptionsStr));
+                classBodyBuilder.AppendLine(")]");
             }
-            sb.Append(new string(' ', 4));
-            sb.Append("public required ");
-            sb.Append($"{typeName} ");
-            sb.Append($"{varName};");
-            sb.AppendLine();
+            classBodyBuilder.Append(new string(' ', 4));
+            classBodyBuilder.Append("public required ");
+            classBodyBuilder.Append($"{typeName} ");
+            classBodyBuilder.Append($"{varName};");
+            classBodyBuilder.AppendLine();
         }
-        sb.AppendLine("}");
-        return sb.ToString();
+        classBodyBuilder.AppendLine("}");
+        if (externalProxyNames.Count > 0)
+        {
+            foreach (var typeName in externalProxyNames)
+            {
+                classAttrBuilder.AppendLine($"[UseProxy(ForType = typeof({typeName}), Proxy = typeof({s_valueTypesDelegateMap[typeName]}))]");
+            }
+        }
+        return classAttrBuilder.Append(classBodyBuilder).ToString();
     }
 
     public override bool Equals(object? obj)
