@@ -147,7 +147,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
                 }
                 return "Behaviour";
             }
-            return "Component";
+            return "UnityComponent";
         }
         return "UnityObject";
     }

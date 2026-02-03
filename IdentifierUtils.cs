@@ -122,6 +122,7 @@ public static class IdentifierUtils
     private static readonly Dictionary<string, string> s_typeNameRemap = new()
     {
         { "PPtr<Object>", "PPtr<UnityObject>" },
+        { "PPtr<Component>", "PPtr<UnityComponent>" },
         { "Matrix4x4f", "Matrix4x4" },
         { "Quaternionf", "Quaternion" }, 
         { "Vector2f", "Vector2" }, 
