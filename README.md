@@ -368,14 +368,6 @@ public partial record ValueConstant
 }
 
 [GenerateSerde]
-public partial record float3
-{
-    public required float x;
-    public required float y;
-    public required float z;
-}
-
-[GenerateSerde]
 public partial record float4
 {
     public required float x;
@@ -405,101 +397,102 @@ public partial record SkeletonMask
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_1
+public partial record OffsetPtr_ConditionConstant
 {
     public required ConditionConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_2
+public partial record OffsetPtr_Blend1dDataConstant
 {
     public required Blend1dDataConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_3
+public partial record OffsetPtr_BlendDirectDataConstant
 {
     public required BlendDirectDataConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_4
+public partial record OffsetPtr_SkeletonMask
 {
     public required SkeletonMask data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_5
+public partial record OffsetPtr_Blend2dDataConstant
 {
     public required Blend2dDataConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_6
+public partial record OffsetPtr_ValueArrayConstant
 {
     public required ValueArrayConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_7
+public partial record OffsetPtr_ValueArray
 {
     public required ValueArray data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_8
+public partial record OffsetPtr_TransitionConstant
 {
     public required TransitionConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_9
+public partial record OffsetPtr_SelectorTransitionConstant
 {
     public required SelectorTransitionConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_10
+public partial record OffsetPtr_LayerConstant
 {
     public required LayerConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_11
+public partial record OffsetPtr_BlendTreeNodeConstant
 {
     public required BlendTreeNodeConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_12
+public partial record OffsetPtr_SelectorStateConstant
 {
     public required SelectorStateConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_13
+public partial record OffsetPtr_BlendTreeConstant
 {
     public required BlendTreeConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_14
+public partial record OffsetPtr_StateConstant
 {
     public required StateConstant data;
 }
 
 [GenerateSerde]
-public partial record OffsetPtr_15
+public partial record OffsetPtr_StateMachineConstant
 {
     public required StateMachineConstant data;
 }
 
 [GenerateSerde]
+[UseProxy(ForType = typeof(Vector2), Proxy = typeof(Vector2Proxy))]
 public partial record Blend2dDataConstant
 {
-    public required Vector2f[] m_ChildPositionArray;
+    public required Vector2[] m_ChildPositionArray;
     public required float[] m_ChildMagnitudeArray;
-    public required Vector2f[] m_ChildPairVectorArray;
+    public required Vector2[] m_ChildPairVectorArray;
     public required float[] m_ChildPairAvgMagInvArray;
     public required MotionNeighborList[] m_ChildNeighborListArray;
 }
@@ -511,11 +504,12 @@ public partial record ValueArrayConstant
 }
 
 [GenerateSerde]
+[UseProxy(ForType = typeof(Vector3), Proxy = typeof(Vector3Proxy))]
 public partial record ValueArray
 {
-    public required float3[] m_PositionValues;
+    public required Vector3[] m_PositionValues;
     public required float4[] m_QuaternionValues;
-    public required float3[] m_ScaleValues;
+    public required Vector3[] m_ScaleValues;
     public required float[] m_FloatValues;
     public required int[] m_IntValues;
     public required bool[] m_BoolValues;
@@ -531,7 +525,7 @@ public partial record StateMachineBehaviourVectorDescription
 [GenerateSerde]
 public partial record TransitionConstant
 {
-    public required OffsetPtr_1[] m_ConditionConstantArray;
+    public required OffsetPtr_ConditionConstant[] m_ConditionConstantArray;
     public required uint m_DestinationState;
     public required uint m_FullPathID;
     public required uint m_ID;
@@ -550,7 +544,7 @@ public partial record TransitionConstant
 public partial record SelectorTransitionConstant
 {
     public required uint m_Destination;
-    public required OffsetPtr_1[] m_ConditionConstantArray;
+    public required OffsetPtr_ConditionConstant[] m_ConditionConstantArray;
 }
 
 [GenerateSerde]
@@ -559,7 +553,7 @@ public partial record LayerConstant
     public required uint m_StateMachineIndex;
     public required uint m_StateMachineSynchronizedLayerIndex;
     public required HumanPoseMask m_BodyMask;
-    public required OffsetPtr_4 m_SkeletonMask;
+    public required OffsetPtr_SkeletonMask m_SkeletonMask;
     public required uint m_Binding;
     [SerdeMemberOptions(Rename = "(int&)m_LayerBlendingMode")]
     public required int intMlayerblendingmode;
@@ -575,9 +569,9 @@ public partial record BlendTreeNodeConstant
     public required uint m_BlendEventID;
     public required uint m_BlendEventYID;
     public required uint[] m_ChildIndices;
-    public required OffsetPtr_2 m_Blend1dData;
-    public required OffsetPtr_5 m_Blend2dData;
-    public required OffsetPtr_3 m_BlendDirectData;
+    public required OffsetPtr_Blend1dDataConstant m_Blend1dData;
+    public required OffsetPtr_Blend2dDataConstant m_Blend2dData;
+    public required OffsetPtr_BlendDirectDataConstant m_BlendDirectData;
     public required uint m_ClipID;
     public required float m_Duration;
     public required float m_CycleOffset;
@@ -587,7 +581,7 @@ public partial record BlendTreeNodeConstant
 [GenerateSerde]
 public partial record SelectorStateConstant
 {
-    public required OffsetPtr_9[] m_TransitionConstantArray;
+    public required OffsetPtr_SelectorTransitionConstant[] m_TransitionConstantArray;
     public required uint m_FullPathID;
     public required bool m_IsEntry;
 }
@@ -595,15 +589,15 @@ public partial record SelectorStateConstant
 [GenerateSerde]
 public partial record BlendTreeConstant
 {
-    public required OffsetPtr_11[] m_NodeArray;
+    public required OffsetPtr_BlendTreeNodeConstant[] m_NodeArray;
 }
 
 [GenerateSerde]
 public partial record StateConstant
 {
-    public required OffsetPtr_8[] m_TransitionConstantArray;
+    public required OffsetPtr_TransitionConstant[] m_TransitionConstantArray;
     public required int[] m_BlendTreeConstantIndexArray;
-    public required OffsetPtr_13[] m_BlendTreeConstantArray;
+    public required OffsetPtr_BlendTreeConstant[] m_BlendTreeConstantArray;
     public required uint m_NameID;
     public required uint m_PathID;
     public required uint m_FullPathID;
@@ -623,9 +617,9 @@ public partial record StateConstant
 [GenerateSerde]
 public partial record StateMachineConstant
 {
-    public required OffsetPtr_14[] m_StateConstantArray;
-    public required OffsetPtr_8[] m_AnyStateTransitionConstantArray;
-    public required OffsetPtr_12[] m_SelectorStateConstantArray;
+    public required OffsetPtr_StateConstant[] m_StateConstantArray;
+    public required OffsetPtr_TransitionConstant[] m_AnyStateTransitionConstantArray;
+    public required OffsetPtr_SelectorStateConstant[] m_SelectorStateConstantArray;
     public required uint m_DefaultState;
     public required uint m_SynchronizedLayerCount;
 }
@@ -633,9 +627,9 @@ public partial record StateMachineConstant
 [GenerateSerde]
 public partial record ControllerConstant
 {
-    public required OffsetPtr_10[] m_LayerArray;
-    public required OffsetPtr_15[] m_StateMachineArray;
-    public required OffsetPtr_6 m_Values;
-    public required OffsetPtr_7 m_DefaultValues;
+    public required OffsetPtr_LayerConstant[] m_LayerArray;
+    public required OffsetPtr_StateMachineConstant[] m_StateMachineArray;
+    public required OffsetPtr_ValueArrayConstant m_Values;
+    public required OffsetPtr_ValueArray m_DefaultValues;
 }
 ```
