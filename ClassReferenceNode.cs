@@ -27,10 +27,11 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 
     public readonly List<ClassReferenceNode> children = [];
     public readonly List<ClassReferenceNode> classRefChildren = [];
+    public readonly List<ClassReferenceNode> unknownClassRefChildren = [];
 
     public string? modifiedClassName = null;
 
-    public int ChildClassCount { get { return classRefChildren.Count; } }
+    public int UnknownChildClassCount { get { return unknownClassRefChildren.Count; } }
 
     private bool IsWellKnownClass()
     {
@@ -69,16 +70,20 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
             }
         }
 
-        if (typeTreeNode.DataType == NodeDataType.Class && !IsWellKnownClass() && parent != null)
+        if (typeTreeNode.DataType == NodeDataType.Class && parent != null)
         {
-            manager.classRefNodeList.Add(this);
-            var ancestor = parent;
-            while (ancestor is not null && ancestor.typeTreeNode.DataType != NodeDataType.Class)
+            var classParent = parent;
+            while (classParent is not null && classParent.typeTreeNode.DataType != NodeDataType.Class)
             {
-                ancestor = ancestor.parent;
+                classParent = classParent.parent;
             }
-            classRefParent = ancestor;
+            classRefParent = classParent;
             classRefParent!.classRefChildren.Add(this);
+            if (!IsWellKnownClass())
+            {
+                manager.unknownClassRefNodeList.Add(this);
+                classRefParent!.unknownClassRefChildren.Add(this);
+            }
         }
     }
 
@@ -158,18 +163,29 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         {
             throw new InvalidOperationException($"Node {typeTreeNode.name}({typeTreeNode.type}, {typeTreeNode.DataType}) is not a class.");
         }
-        var classAttrBuilder = new StringBuilder();
-        classAttrBuilder.AppendLine("[GenerateSerde]");
         var externalProxyNames = new HashSet<string>();
 
-        var classBodyBuilder = new StringBuilder();
-        classBodyBuilder.Append($"public partial record {GetTypeName()}");
+        var sb = new StringBuilder();
+        sb.AppendLine("[GenerateSerde]");
+        foreach (var classRef in classRefChildren)
+        {
+            var classRefName = classRef.GetTypeName();
+            if (s_valueTypesDelegateMap.ContainsKey(classRefName))
+            {
+                externalProxyNames.Add(classRefName);
+            }
+        }
+        foreach (var typeName in externalProxyNames)
+        {
+            sb.AppendLine($"[UseProxy(ForType = typeof({typeName}), Proxy = typeof({s_valueTypesDelegateMap[typeName]}))]");
+        }
+        sb.Append($"public partial record {GetTypeName()}");
         if (parent is null)
         {
-            classBodyBuilder.Append($" : {RootClassPreProcess()}");
+            sb.Append($" : {RootClassPreProcess()}");
         }
-        classBodyBuilder.AppendLine();
-        classBodyBuilder.AppendLine("{");
+        sb.AppendLine();
+        sb.AppendLine("{");
         foreach (var childNode in children)
         {
             var typeName = childNode.GetTypeName();
@@ -190,28 +206,21 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
             }
             if (memberOptionsMap.Count > 0)
             {
-                classBodyBuilder.Append("    [SerdeMemberOptions(");
+                sb.Append("    [SerdeMemberOptions(");
                 var memberOptionsStr =
                     from item in memberOptionsMap
                     select $"{item.Key} = {item.Value}";
-                classBodyBuilder.Append(string.Join(", ", memberOptionsStr));
-                classBodyBuilder.AppendLine(")]");
+                sb.Append(string.Join(", ", memberOptionsStr));
+                sb.AppendLine(")]");
             }
-            classBodyBuilder.Append(new string(' ', 4));
-            classBodyBuilder.Append("public required ");
-            classBodyBuilder.Append($"{typeName} ");
-            classBodyBuilder.Append($"{varName};");
-            classBodyBuilder.AppendLine();
+            sb.Append(new string(' ', 4));
+            sb.Append("public required ");
+            sb.Append($"{typeName} ");
+            sb.Append($"{varName};");
+            sb.AppendLine();
         }
-        classBodyBuilder.AppendLine("}");
-        if (externalProxyNames.Count > 0)
-        {
-            foreach (var typeName in externalProxyNames)
-            {
-                classAttrBuilder.AppendLine($"[UseProxy(ForType = typeof({typeName}), Proxy = typeof({s_valueTypesDelegateMap[typeName]}))]");
-            }
-        }
-        return classAttrBuilder.Append(classBodyBuilder).ToString();
+        sb.AppendLine("}");
+        return sb.ToString();
     }
 
     public override bool Equals(object? obj)
@@ -248,5 +257,16 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
             hc.Add(child.typeTreeNode.name);
         }
         return hc.ToHashCode();
+    }
+
+    public bool IsOffsetPtr(out ClassReferenceNode pointedNode)
+    {
+        if (this is { typeTreeNode.type: "OffsetPtr", children: [{ } underlyingNode] })
+        {
+            pointedNode = underlyingNode;
+            return true;
+        }
+        pointedNode = default!;
+        return false;
     }
 }

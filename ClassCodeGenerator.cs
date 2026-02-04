@@ -7,33 +7,43 @@ public class ClassCodeGenerator
 {
     private readonly ClassReferenceNode rootRefNode;
 
-    public readonly List<ClassReferenceNode> classRefNodeList = [];
-    private readonly MultiDictionary<string, List<ClassReferenceNode>> classNameNodeMap = [];
+    public readonly List<ClassReferenceNode> unknownClassRefNodeList = [];
+    private readonly MultiDictionary<string, ClassReferenceNode[]> classNameNodesMap = [];
 
     public ClassCodeGenerator(TypeTreeNode rootNode)
     {
         rootRefNode = new(rootNode, null, this);
-        classNameNodeMap.Add(rootRefNode.typeTreeNode.type, [rootRefNode]);
+        classNameNodesMap.Add(rootRefNode.typeTreeNode.type, [rootRefNode]);
         RenameClasses();
         RestoreUniqueClassName();
     }
 
+    private static void RenameNode(ClassReferenceNode node, string rawClassName, int renameIndex)
+    {
+        if (node.IsOffsetPtr(out var pointedNode))
+        {
+            node.modifiedClassName = $"OffsetPtr_{pointedNode.typeTreeNode.type}";
+            return;
+        }
+        node.modifiedClassName = $"{rawClassName}_{renameIndex}";
+    }
+
     private void RenameClasses()
     {
-        while (classRefNodeList.Count > 0)
+        while (unknownClassRefNodeList.Count > 0)
         {
             var topMostClassGroups = 
-                from node in classRefNodeList
-                where node.ChildClassCount == 0
+                from node in unknownClassRefNodeList
+                where node.UnknownChildClassCount == 0
                 group node by node into g
-                select g.ToList();
+                select g.ToArray();
             foreach (var group in topMostClassGroups)
             {
                 var className = group[0].typeTreeNode.type;
                 int groupCount;
-                if (classNameNodeMap.TryGetValue(className, out var groupList))
+                if (classNameNodesMap.TryGetValue(className, out var groupArr))
                 {
-                    groupCount = groupList.Count;
+                    groupCount = groupArr.Count;
                 }
                 else
                 {
@@ -41,28 +51,31 @@ public class ClassCodeGenerator
                 }
                 foreach (var node in group)
                 {
-                    node.modifiedClassName = $"{className}_{groupCount + 1}";
-                    classRefNodeList.Remove(node);
-                    node.classRefParent?.classRefChildren.Remove(node);
+                    RenameNode(node, className, groupCount + 1);
+                    unknownClassRefNodeList.Remove(node);
+                    node.classRefParent?.unknownClassRefChildren.Remove(node);
                 }
-                classNameNodeMap.Add(className, group);
+                classNameNodesMap.Add(className, group);
             }
         }
     }
 
     private void RestoreUniqueClassName()
     {
-        foreach (var (className, classList) in classNameNodeMap)
+        foreach (var (className, classArr) in classNameNodesMap)
         {
-            if (classList.Count == 0)
+            if (classArr.Count == 0)
             {
                 throw new InvalidOperationException($"Empty class list {className}");
             }
-            else if (classList.Count == 1)
+            else if (classArr.Count == 1)
             {
-                foreach (var node in classList[0])
+                foreach (var node in classArr[0])
                 {
-                    node.modifiedClassName = null;
+                    if (!node.IsOffsetPtr(out _))
+                    {
+                        node.modifiedClassName = null;
+                    }
                 }
             }
         }
@@ -70,7 +83,7 @@ public class ClassCodeGenerator
 
     public void WriteCode(StreamWriter writer)
     {
-        foreach (var classList in classNameNodeMap.Values)
+        foreach (var classList in classNameNodesMap.Values)
         {
             foreach (var classNodes in classList)
             {
