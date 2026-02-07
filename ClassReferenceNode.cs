@@ -7,7 +7,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
 {
     private static readonly HashSet<string> s_wellKnownValueTypes =
     [
-        "Colorf", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", 
+        "ColorRGBA", "Matrix4x4f", "Quaternionf", "Vector2f", "Vector3f", "Vector4f", 
         "GUID", "Hash128", "float3",
     ];
 
@@ -18,6 +18,7 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
         { "Vector2", "Vector2Proxy" },
         { "Vector3", "Vector3Proxy" },
         { "Vector4", "Vector4Proxy" },
+        { "Guid", "GuidProxy" }
     };
 
     public readonly ClassReferenceNode? parent;
@@ -121,11 +122,10 @@ public class ClassReferenceNode : IEquatable<ClassReferenceNode>
                 NodeDataType.Double => "double",
                 NodeDataType.Char or NodeDataType.WideChar => "char",
                 NodeDataType.Bool => "bool",
-                NodeDataType.Guid => "Guid",
                 NodeDataType.Hash128 => "Hash128",
                 NodeDataType.ByteArray or NodeDataType.Typeless => "byte[]",
                 NodeDataType.String => "string",
-                NodeDataType.Class => IdentifierUtils.RemapTypeName(typeTreeNode.type),
+                NodeDataType.Class => IdentifierUtils.ProcessTypeName(typeTreeNode.type),
                 _ => throw new InvalidOperationException($"Should not reach here: {typeTreeNode.DataType}"),
             };
         }

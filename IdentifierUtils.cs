@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AssetClassGenerator;
 
-public static class IdentifierUtils
+public static partial class IdentifierUtils
 {
     // A conservative set of C# keywords and contextual keywords (keeps common ones).
     // If you need absolute correctness for a particular C# version, extend this set.
@@ -119,6 +120,19 @@ public static class IdentifierUtils
         return result;
     }
 
+    [GeneratedRegex(@"PPtr<\$(?<clsName>.+)>")]
+    private static partial Regex PPtrEscapeRegex();
+
+    public static string EscapeTypeName(string typeName)
+    {
+        Match m = PPtrEscapeRegex().Match(typeName);
+        if (m.Success)
+        {
+            return $"PPtr<{m.Groups["clsName"].Value}>";
+        }
+        return typeName;
+    }
+
     private static readonly Dictionary<string, string> s_typeNameRemap = new()
     {
         { "PPtr<Object>", "PPtr<UnityObject>" },
@@ -128,7 +142,8 @@ public static class IdentifierUtils
         { "Vector2f", "Vector2" }, 
         { "Vector3f", "Vector3" }, 
         { "Vector4f", "Vector4" },
-        { "float3", "Vector3" }
+        { "float3", "Vector3" },
+        { "GUID", "Guid" }
     };
 
     public static string RemapTypeName(string typeName)
@@ -138,5 +153,12 @@ public static class IdentifierUtils
             return remapped;
         }
         return typeName;
+    }
+
+    public static string ProcessTypeName(string typeName)
+    {
+        var tn = EscapeTypeName(typeName);
+        tn = RemapTypeName(tn);
+        return tn;
     }
 }
