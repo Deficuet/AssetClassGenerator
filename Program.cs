@@ -1,10 +1,37 @@
-﻿using AssetParser.TypeTreeUtils;
+﻿using AssetClassGenerator.TypeTree;
+using AssetParser.TypeTreeUtils;
+using AssetsTools.NET;
+using AssetsTools.NET.Extra;
 
 namespace AssetClassGenerator;
 
 public class MainClass
 {
-    static async Task<int> Main(string[] args)
+    private const string CLASS_TPK_PATH = @"D:\self\Programs\AzurPromiliaProject\temp\uncompressed.tpk";
+    private const string ASSEMBLY_PATH = @"D:\self\Programs\AzurPromiliaTest3\reveng\il2cpp\GameAssembly.dll";
+    private const string METADATA_PATH = @"D:\self\Programs\AzurPromiliaTest3\reveng\il2cpp\global-metadata_dec.dat";
+    private readonly static UnityVersion DefaultVersion = new("2022.3.62f3");
+
+    public static async Task<int> Main(string[] args)
+    {
+        var manager = new AssetsManager();
+        manager.LoadClassPackage(CLASS_TPK_PATH);
+        //var tree = TypeTreeUtils.GetBuiltinTypeTree(
+        //    manager,
+        //    DefaultVersion,
+        //    AssetClassID.MonoBehaviour
+        //);
+        var tree = TypeTreeUtils.GetCustomMonoBehaviourTypeTree(
+            manager, DefaultVersion, METADATA_PATH, ASSEMBLY_PATH,
+            "Assembly-CSharp", "Lens.Gameplay.Modules.BigWorld.PlayableAnimator", "AnimationStreamingProfile");
+        foreach (var node in tree.Nodes)
+        {
+            Console.WriteLine($"{node.Level} {node.GetTypeString(tree.StringBufferBytes, tree.CommonStringBufferBytes)} {node.GetNameString(tree.StringBufferBytes, tree.CommonStringBufferBytes)}");
+        }
+        return 0;
+    }
+
+    static async Task<int> Test(string[] args)
     {
         if (args.Length == 0)
         {
@@ -24,7 +51,7 @@ public class MainClass
                     var fileName = Path.GetFileName(path);
                     using var sr = new StreamReader(path);
                     string? line;
-                    Stack<TypeTreeNode> stack = new();
+                    Stack<AssetParser.TypeTreeUtils.TypeTreeNode> stack = new();
                     while ((line = await sr.ReadLineAsync()) is not null)
                     {
                         if (line.Length == 0)
