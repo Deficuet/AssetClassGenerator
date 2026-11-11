@@ -8,10 +8,15 @@ AssetClassGenerator.exe </path/to/typeTree1.txt> [/path/to/typeTree2.txt] ...
 ```
 
 ## Features
-1. Classes with the same name but different fields are automatically detected and renamed with a suffix `_1`, `_2`, etc.
-2. Invalid field names are automatically renamed in camelCase with attribute `[SerdeMemberOptions(Rename = "...")]` applied for storing the original field name. (Beta)
-3. Some "well known" value types are skipped: `Colorf`, `Matrix4x4f`, `Quaternionf`, `Vector2f`, `Vector3f`, `Vector4f`, `GUID`, `Hash128`
-4. If the **first** field of the root `UnityObject` class is `string m_Name`, then the class will inherit `NamedObject` instead of default `UnityObject` and the first field `m_Name` will be removed.
+1. Classes with the same name but different fields will be renamed with a suffix `_1`, `_2`, etc.
+2. Invalid field names will be renamed in camelCase with attribute `[SerdeMemberOptions(Rename = "...")]` applied for storing the original field name. (Beta)
+3. Some classes are renamed to avoid name conflicts when copy-paste, include class names inside PPtr e.g. `PPtr<Object>`
+   - `Object` to `UnityObject`
+   - `Component` to `UnityComponent`
+4. Some "well known" value types are skipped: `ColorRGBA`, `Matrix4x4f`, `Quaternionf`, `Vector2f`, `Vector3f`, `Vector4f`, `GUID`, `Hash128`, `float3`
+   - `float3` is automatically remapped as `Vector3f`
+   - `float4` can be `Vector4f` or `Quaternion` so it is leaved as-is. 
+5. Some parent classes will be detected: `NamedObject`, `UnityComponent`, `Behaviour`, `MonoBehaviour`. And the fields will be removed in the generated code. By default an object (root class) will inherit `UnityObject`. 
 
 ## Example
 - [Type tree](#type-tree)
