@@ -1,4 +1,5 @@
-﻿using AssetClassGenerator.TypeTree;
+﻿using AssetClassGenerator.Info;
+using AssetManager.TypeTree;
 using AssetParser.TypeTreeUtils;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
@@ -16,18 +17,55 @@ public class MainClass
     {
         var manager = new AssetsManager();
         manager.LoadClassPackage(CLASS_TPK_PATH);
+
         //var tree = TypeTreeUtils.GetBuiltinTypeTree(
-        //    manager,
-        //    DefaultVersion,
-        //    AssetClassID.MonoBehaviour
-        //);
-        var tree = TypeTreeUtils.GetCustomMonoBehaviourTypeTree(
-            manager, DefaultVersion, METADATA_PATH, ASSEMBLY_PATH,
-            "Assembly-CSharp", "Lens.Gameplay.Modules.BigWorld.PlayableAnimator", "AnimationStreamingProfile");
-        foreach (var node in tree.Nodes)
+        //    manager, DefaultVersion, AssetClassID.IConstraint);
+
+        //var existClassIdList = new List<int>();
+        //foreach (var classId in Enum.GetValues<AssetClassID>())
+        //{
+        //    try
+        //    {
+        //        var tree = TypeTreeUtils.GetBuiltinTypeTree(
+        //            manager, DefaultVersion, classId);
+        //        existClassIdList.Add((int)classId);
+        //    }
+        //    catch
+        //    {
+
+        //    }
+        //}
+        //Console.WriteLine(string.Join(',', existClassIdList));
+
+        var classIDSet = Enum.GetValues<AssetClassID>().ToHashSet();
+        var existSet = UnityObjectInheritanceInfo.BaseTypeMap.Keys.ToHashSet();
+        var existCount = 0;
+        var nonExistCount = 0;
+        foreach (var classID in existSet)
         {
-            Console.WriteLine($"{node.Level} {node.GetTypeString(tree.StringBufferBytes, tree.CommonStringBufferBytes)} {node.GetNameString(tree.StringBufferBytes, tree.CommonStringBufferBytes)}");
+            try
+            {
+                var tree = TypeTreeUtils.GetBuiltinTypeTree(
+                    manager, DefaultVersion, classID);
+                //Console.WriteLine($"{classID} has structure in version {DefaultVersion}");
+                ++existCount;
+            }
+            catch
+            {
+                //Console.WriteLine($"{classID} has no structure in version {DefaultVersion}");
+                ++nonExistCount;
+            }
         }
+        Console.WriteLine($"existCount {existCount} nonExistCount {nonExistCount}");
+
+        //var tree = TypeTreeUtils.GetCustomMonoBehaviourTypeTree(
+        //    manager, DefaultVersion, METADATA_PATH, ASSEMBLY_PATH,
+        //    "Assembly-CSharp", "Lens.Gameplay.Modules.BigWorld.PlayableAnimator", "AnimationStreamingProfile");
+
+        //foreach (var node in tree.Nodes)
+        //{
+        //    Console.WriteLine($"{node.Level} {tree.GetTypeString(node)} {tree.GetNameString(node)}");
+        //}
         return 0;
     }
 
