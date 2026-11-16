@@ -248,6 +248,13 @@ public static class ModelCodeGenerator
                 SyntaxFactory.NameEquals("Name"),
                 null,
                 CreateStringLiteral(name)
+            ),
+            SyntaxFactory.AttributeArgument(
+                SyntaxFactory.NameEquals("IsRequired"),
+                null,
+                SyntaxFactory.LiteralExpression(
+                    SyntaxKind.TrueLiteralExpression
+                )
             )
         );
     }

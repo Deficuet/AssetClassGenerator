@@ -8,7 +8,7 @@ Generated declarations carry:
 
 - `AssetManager.TypeTree.TypeTreeSource` on every Unity object class, recording the original type-tree source.
 - `AssetManager.TypeTree.TypeTreeClass` on derived classes and on every member, recording the original type-tree class/type name.
-- `PolyType.PropertyShape` on every member, recording the original type-tree member name for PolyType shapes.
+- `PolyType.PropertyShape` on every member, recording the original type-tree member name and setting `IsRequired = true`, so PolyType can reject input with missing fields when constructing a shape.
 
 ## Usage
 
@@ -52,6 +52,7 @@ AssetClassGenerator.exe <path/to/options.json>
 7. **Inheritance**: `Info/UnityObjectInheritanceInfo.BaseTypeMap` defines the potential base class of a built-in Unity object. The parent type tree's members are matched against the start of the child's member list; matched members are removed from the generated class and the generated class inherits the parent. Otherwise it inherits `UnityObject`.
 8. **Nested output folders**: `Generated` in the process current directory is recreated for every run. A namespace is written as one folder per segment, for example `Sample.Builtin` becomes `Generated/Sample/Builtin/`. Each Unity object class gets its own `.cs` file; all derived classes for that namespace are written to `classes.cs`.
 9. **No `using` directives**: primitive types and `string` use C# keywords; every other type, base class, and attribute is written with a `global::` fully qualified name.
+10. **Required members**: every generated member carries `[PropertyShape(Name = "...", IsRequired = true)]`. PolyType therefore treats all members as required when constructing an object and can report fields that are missing from the input.
 
 ### Known type examples
 
@@ -377,35 +378,35 @@ namespace Sample.Builtin
     public class AnimatorController : global::Sample.Builtin.UnityObject
     {
         [global::AssetManager.TypeTree.TypeTreeClass("string")]
-        [global::PolyType.PropertyShape(Name = "m_Name")]
+        [global::PolyType.PropertyShape(Name = "m_Name", IsRequired = true)]
         public string m_Name { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ControllerSize")]
+        [global::PolyType.PropertyShape(Name = "m_ControllerSize", IsRequired = true)]
         public uint m_ControllerSize { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("ControllerConstant")]
-        [global::PolyType.PropertyShape(Name = "m_Controller")]
+        [global::PolyType.PropertyShape(Name = "m_Controller", IsRequired = true)]
         public global::Sample.Builtin.ControllerConstant m_Controller { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("map<unsigned int,string>")]
-        [global::PolyType.PropertyShape(Name = "m_TOS")]
-        public global::UObjects.Collections.MultiDictionary<uint, string> m_TOS { get; set; }
+        [global::PolyType.PropertyShape(Name = "m_TOS", IsRequired = true)]
+        public global::AssetManager.Collections.MultiDictionary<uint, string> m_TOS { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<PPtr<AnimationClip>>")]
-        [global::PolyType.PropertyShape(Name = "m_AnimationClips")]
+        [global::PolyType.PropertyShape(Name = "m_AnimationClips", IsRequired = true)]
         public global::AssetsTools.NET.AssetPPtr[] m_AnimationClips { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("StateMachineBehaviourVectorDescription")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourVectorDescription")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourVectorDescription", IsRequired = true)]
         public global::Sample.Builtin.StateMachineBehaviourVectorDescription m_StateMachineBehaviourVectorDescription { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<PPtr<MonoBehaviour>>")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviours")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviours", IsRequired = true)]
         public global::AssetsTools.NET.AssetPPtr[] m_StateMachineBehaviours { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_MultiThreadedStateMachine")]
+        [global::PolyType.PropertyShape(Name = "m_MultiThreadedStateMachine", IsRequired = true)]
         public bool m_MultiThreadedStateMachine { get; set; }
     }
 }
@@ -420,7 +421,7 @@ namespace Sample.Builtin
     public record Blend1dDataConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildThresholdArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildThresholdArray", IsRequired = true)]
         public float[] m_ChildThresholdArray { get; set; }
     }
 
@@ -428,23 +429,23 @@ namespace Sample.Builtin
     public record Blend2dDataConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<Vector2f>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildPositionArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildPositionArray", IsRequired = true)]
         public global::UnityEngine.Vector2[] m_ChildPositionArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildMagnitudeArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildMagnitudeArray", IsRequired = true)]
         public float[] m_ChildMagnitudeArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<Vector2f>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildPairVectorArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildPairVectorArray", IsRequired = true)]
         public global::UnityEngine.Vector2[] m_ChildPairVectorArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildPairAvgMagInvArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildPairAvgMagInvArray", IsRequired = true)]
         public float[] m_ChildPairAvgMagInvArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<MotionNeighborList>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildNeighborListArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildNeighborListArray", IsRequired = true)]
         public global::Sample.Builtin.MotionNeighborList[] m_ChildNeighborListArray { get; set; }
     }
 
@@ -452,11 +453,11 @@ namespace Sample.Builtin
     public record BlendDirectDataConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<unsigned int>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildBlendEventIDArray")]
+        [global::PolyType.PropertyShape(Name = "m_ChildBlendEventIDArray", IsRequired = true)]
         public uint[] m_ChildBlendEventIDArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_NormalizedBlendValues")]
+        [global::PolyType.PropertyShape(Name = "m_NormalizedBlendValues", IsRequired = true)]
         public bool m_NormalizedBlendValues { get; set; }
     }
 
@@ -464,7 +465,7 @@ namespace Sample.Builtin
     public record BlendTreeConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_NodeArray")]
+        [global::PolyType.PropertyShape(Name = "m_NodeArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_18a1a5da[] m_NodeArray { get; set; }
     }
 
@@ -472,47 +473,47 @@ namespace Sample.Builtin
     public record BlendTreeNodeConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_BlendType")]
+        [global::PolyType.PropertyShape(Name = "m_BlendType", IsRequired = true)]
         public uint m_BlendType { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_BlendEventID")]
+        [global::PolyType.PropertyShape(Name = "m_BlendEventID", IsRequired = true)]
         public uint m_BlendEventID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_BlendEventYID")]
+        [global::PolyType.PropertyShape(Name = "m_BlendEventYID", IsRequired = true)]
         public uint m_BlendEventYID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<unsigned int>")]
-        [global::PolyType.PropertyShape(Name = "m_ChildIndices")]
+        [global::PolyType.PropertyShape(Name = "m_ChildIndices", IsRequired = true)]
         public uint[] m_ChildIndices { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_Blend1dData")]
+        [global::PolyType.PropertyShape(Name = "m_Blend1dData", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_aa29e699 m_Blend1dData { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_Blend2dData")]
+        [global::PolyType.PropertyShape(Name = "m_Blend2dData", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_9966b365 m_Blend2dData { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_BlendDirectData")]
+        [global::PolyType.PropertyShape(Name = "m_BlendDirectData", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_9e2fe326 m_BlendDirectData { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ClipID")]
+        [global::PolyType.PropertyShape(Name = "m_ClipID", IsRequired = true)]
         public uint m_ClipID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_Duration")]
+        [global::PolyType.PropertyShape(Name = "m_Duration", IsRequired = true)]
         public float m_Duration { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_CycleOffset")]
+        [global::PolyType.PropertyShape(Name = "m_CycleOffset", IsRequired = true)]
         public float m_CycleOffset { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_Mirror")]
+        [global::PolyType.PropertyShape(Name = "m_Mirror", IsRequired = true)]
         public bool m_Mirror { get; set; }
     }
 
@@ -520,19 +521,19 @@ namespace Sample.Builtin
     public record struct ConditionConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ConditionMode")]
+        [global::PolyType.PropertyShape(Name = "m_ConditionMode", IsRequired = true)]
         public uint m_ConditionMode { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_EventID")]
+        [global::PolyType.PropertyShape(Name = "m_EventID", IsRequired = true)]
         public uint m_EventID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_EventThreshold")]
+        [global::PolyType.PropertyShape(Name = "m_EventThreshold", IsRequired = true)]
         public float m_EventThreshold { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_ExitTime")]
+        [global::PolyType.PropertyShape(Name = "m_ExitTime", IsRequired = true)]
         public float m_ExitTime { get; set; }
     }
 
@@ -540,19 +541,19 @@ namespace Sample.Builtin
     public record ControllerConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_LayerArray")]
+        [global::PolyType.PropertyShape(Name = "m_LayerArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_22caeee8[] m_LayerArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineArray")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_39db6cdc[] m_StateMachineArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_Values")]
+        [global::PolyType.PropertyShape(Name = "m_Values", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_8cc9997b m_Values { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_DefaultValues")]
+        [global::PolyType.PropertyShape(Name = "m_DefaultValues", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_e794aa8d m_DefaultValues { get; set; }
     }
 
@@ -560,15 +561,15 @@ namespace Sample.Builtin
     public record struct HumanPoseMask
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "word0")]
+        [global::PolyType.PropertyShape(Name = "word0", IsRequired = true)]
         public uint word0 { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "word1")]
+        [global::PolyType.PropertyShape(Name = "word1", IsRequired = true)]
         public uint word1 { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "word2")]
+        [global::PolyType.PropertyShape(Name = "word2", IsRequired = true)]
         public uint word2 { get; set; }
     }
 
@@ -576,39 +577,39 @@ namespace Sample.Builtin
     public record LayerConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineIndex")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineIndex", IsRequired = true)]
         public uint m_StateMachineIndex { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineSynchronizedLayerIndex")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineSynchronizedLayerIndex", IsRequired = true)]
         public uint m_StateMachineSynchronizedLayerIndex { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("HumanPoseMask")]
-        [global::PolyType.PropertyShape(Name = "m_BodyMask")]
+        [global::PolyType.PropertyShape(Name = "m_BodyMask", IsRequired = true)]
         public global::Sample.Builtin.HumanPoseMask m_BodyMask { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("OffsetPtr")]
-        [global::PolyType.PropertyShape(Name = "m_SkeletonMask")]
+        [global::PolyType.PropertyShape(Name = "m_SkeletonMask", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_b3eda9fa m_SkeletonMask { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_Binding")]
+        [global::PolyType.PropertyShape(Name = "m_Binding", IsRequired = true)]
         public uint m_Binding { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("int")]
-        [global::PolyType.PropertyShape(Name = "(int&)m_LayerBlendingMode")]
+        [global::PolyType.PropertyShape(Name = "(int&)m_LayerBlendingMode", IsRequired = true)]
         public int intMlayerblendingmode { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_DefaultWeight")]
+        [global::PolyType.PropertyShape(Name = "m_DefaultWeight", IsRequired = true)]
         public float m_DefaultWeight { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_IKPass")]
+        [global::PolyType.PropertyShape(Name = "m_IKPass", IsRequired = true)]
         public bool m_IKPass { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_SyncedLayerAffectsTiming")]
+        [global::PolyType.PropertyShape(Name = "m_SyncedLayerAffectsTiming", IsRequired = true)]
         public bool m_SyncedLayerAffectsTiming { get; set; }
     }
 
@@ -616,7 +617,7 @@ namespace Sample.Builtin
     public record MotionNeighborList
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<unsigned int>")]
-        [global::PolyType.PropertyShape(Name = "m_NeighborArray")]
+        [global::PolyType.PropertyShape(Name = "m_NeighborArray", IsRequired = true)]
         public uint[] m_NeighborArray { get; set; }
     }
 
@@ -624,7 +625,7 @@ namespace Sample.Builtin
     public record OffsetPtr_18a1a5da
     {
         [global::AssetManager.TypeTree.TypeTreeClass("BlendTreeNodeConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.BlendTreeNodeConstant data { get; set; }
     }
 
@@ -632,7 +633,7 @@ namespace Sample.Builtin
     public record OffsetPtr_22caeee8
     {
         [global::AssetManager.TypeTree.TypeTreeClass("LayerConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.LayerConstant data { get; set; }
     }
 
@@ -640,7 +641,7 @@ namespace Sample.Builtin
     public record OffsetPtr_39db6cdc
     {
         [global::AssetManager.TypeTree.TypeTreeClass("StateMachineConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.StateMachineConstant data { get; set; }
     }
 
@@ -648,7 +649,7 @@ namespace Sample.Builtin
     public record OffsetPtr_3cb05302
     {
         [global::AssetManager.TypeTree.TypeTreeClass("BlendTreeConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.BlendTreeConstant data { get; set; }
     }
 
@@ -656,7 +657,7 @@ namespace Sample.Builtin
     public record OffsetPtr_6ca3c339
     {
         [global::AssetManager.TypeTree.TypeTreeClass("TransitionConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.TransitionConstant data { get; set; }
     }
 
@@ -664,7 +665,7 @@ namespace Sample.Builtin
     public record OffsetPtr_8cc9997b
     {
         [global::AssetManager.TypeTree.TypeTreeClass("ValueArrayConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.ValueArrayConstant data { get; set; }
     }
 
@@ -672,7 +673,7 @@ namespace Sample.Builtin
     public record struct OffsetPtr_91ef57d5
     {
         [global::AssetManager.TypeTree.TypeTreeClass("ConditionConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.ConditionConstant data { get; set; }
     }
 
@@ -680,7 +681,7 @@ namespace Sample.Builtin
     public record OffsetPtr_982ee56f
     {
         [global::AssetManager.TypeTree.TypeTreeClass("SelectorStateConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.SelectorStateConstant data { get; set; }
     }
 
@@ -688,7 +689,7 @@ namespace Sample.Builtin
     public record OffsetPtr_9966b365
     {
         [global::AssetManager.TypeTree.TypeTreeClass("Blend2dDataConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.Blend2dDataConstant data { get; set; }
     }
 
@@ -696,7 +697,7 @@ namespace Sample.Builtin
     public record OffsetPtr_9e2fe326
     {
         [global::AssetManager.TypeTree.TypeTreeClass("BlendDirectDataConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.BlendDirectDataConstant data { get; set; }
     }
 
@@ -704,7 +705,7 @@ namespace Sample.Builtin
     public record OffsetPtr_aa29e699
     {
         [global::AssetManager.TypeTree.TypeTreeClass("Blend1dDataConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.Blend1dDataConstant data { get; set; }
     }
 
@@ -712,7 +713,7 @@ namespace Sample.Builtin
     public record OffsetPtr_b3eda9fa
     {
         [global::AssetManager.TypeTree.TypeTreeClass("SkeletonMask")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.SkeletonMask data { get; set; }
     }
 
@@ -720,7 +721,7 @@ namespace Sample.Builtin
     public record OffsetPtr_c102ff05
     {
         [global::AssetManager.TypeTree.TypeTreeClass("StateConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.StateConstant data { get; set; }
     }
 
@@ -728,7 +729,7 @@ namespace Sample.Builtin
     public record OffsetPtr_d3581342
     {
         [global::AssetManager.TypeTree.TypeTreeClass("SelectorTransitionConstant")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.SelectorTransitionConstant data { get; set; }
     }
 
@@ -736,7 +737,7 @@ namespace Sample.Builtin
     public record OffsetPtr_e794aa8d
     {
         [global::AssetManager.TypeTree.TypeTreeClass("ValueArray")]
-        [global::PolyType.PropertyShape(Name = "data")]
+        [global::PolyType.PropertyShape(Name = "data", IsRequired = true)]
         public global::Sample.Builtin.ValueArray data { get; set; }
     }
 
@@ -744,15 +745,15 @@ namespace Sample.Builtin
     public record SelectorStateConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_TransitionConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_TransitionConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_d3581342[] m_TransitionConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_FullPathID")]
+        [global::PolyType.PropertyShape(Name = "m_FullPathID", IsRequired = true)]
         public uint m_FullPathID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_IsEntry")]
+        [global::PolyType.PropertyShape(Name = "m_IsEntry", IsRequired = true)]
         public bool m_IsEntry { get; set; }
     }
 
@@ -760,11 +761,11 @@ namespace Sample.Builtin
     public record SelectorTransitionConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_Destination")]
+        [global::PolyType.PropertyShape(Name = "m_Destination", IsRequired = true)]
         public uint m_Destination { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_ConditionConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_ConditionConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_91ef57d5[] m_ConditionConstantArray { get; set; }
     }
 
@@ -772,7 +773,7 @@ namespace Sample.Builtin
     public record SkeletonMask
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<SkeletonMaskElement>")]
-        [global::PolyType.PropertyShape(Name = "m_Data")]
+        [global::PolyType.PropertyShape(Name = "m_Data", IsRequired = true)]
         public global::Sample.Builtin.SkeletonMaskElement[] m_Data { get; set; }
     }
 
@@ -780,11 +781,11 @@ namespace Sample.Builtin
     public record struct SkeletonMaskElement
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_PathHash")]
+        [global::PolyType.PropertyShape(Name = "m_PathHash", IsRequired = true)]
         public uint m_PathHash { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_Weight")]
+        [global::PolyType.PropertyShape(Name = "m_Weight", IsRequired = true)]
         public float m_Weight { get; set; }
     }
 
@@ -792,71 +793,71 @@ namespace Sample.Builtin
     public record StateConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_TransitionConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_TransitionConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_6ca3c339[] m_TransitionConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<int>")]
-        [global::PolyType.PropertyShape(Name = "m_BlendTreeConstantIndexArray")]
+        [global::PolyType.PropertyShape(Name = "m_BlendTreeConstantIndexArray", IsRequired = true)]
         public int[] m_BlendTreeConstantIndexArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_BlendTreeConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_BlendTreeConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_3cb05302[] m_BlendTreeConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_NameID")]
+        [global::PolyType.PropertyShape(Name = "m_NameID", IsRequired = true)]
         public uint m_NameID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_PathID")]
+        [global::PolyType.PropertyShape(Name = "m_PathID", IsRequired = true)]
         public uint m_PathID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_FullPathID")]
+        [global::PolyType.PropertyShape(Name = "m_FullPathID", IsRequired = true)]
         public uint m_FullPathID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_TagID")]
+        [global::PolyType.PropertyShape(Name = "m_TagID", IsRequired = true)]
         public uint m_TagID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_SpeedParamID")]
+        [global::PolyType.PropertyShape(Name = "m_SpeedParamID", IsRequired = true)]
         public uint m_SpeedParamID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_MirrorParamID")]
+        [global::PolyType.PropertyShape(Name = "m_MirrorParamID", IsRequired = true)]
         public uint m_MirrorParamID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_CycleOffsetParamID")]
+        [global::PolyType.PropertyShape(Name = "m_CycleOffsetParamID", IsRequired = true)]
         public uint m_CycleOffsetParamID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_TimeParamID")]
+        [global::PolyType.PropertyShape(Name = "m_TimeParamID", IsRequired = true)]
         public uint m_TimeParamID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_Speed")]
+        [global::PolyType.PropertyShape(Name = "m_Speed", IsRequired = true)]
         public float m_Speed { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_CycleOffset")]
+        [global::PolyType.PropertyShape(Name = "m_CycleOffset", IsRequired = true)]
         public float m_CycleOffset { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_IKOnFeet")]
+        [global::PolyType.PropertyShape(Name = "m_IKOnFeet", IsRequired = true)]
         public bool m_IKOnFeet { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_WriteDefaultValues")]
+        [global::PolyType.PropertyShape(Name = "m_WriteDefaultValues", IsRequired = true)]
         public bool m_WriteDefaultValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_Loop")]
+        [global::PolyType.PropertyShape(Name = "m_Loop", IsRequired = true)]
         public bool m_Loop { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_Mirror")]
+        [global::PolyType.PropertyShape(Name = "m_Mirror", IsRequired = true)]
         public bool m_Mirror { get; set; }
     }
 
@@ -864,11 +865,11 @@ namespace Sample.Builtin
     public record struct StateKey
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_StateID")]
+        [global::PolyType.PropertyShape(Name = "m_StateID", IsRequired = true)]
         public uint m_StateID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("int")]
-        [global::PolyType.PropertyShape(Name = "m_LayerIndex")]
+        [global::PolyType.PropertyShape(Name = "m_LayerIndex", IsRequired = true)]
         public int m_LayerIndex { get; set; }
     }
 
@@ -876,11 +877,11 @@ namespace Sample.Builtin
     public record StateMachineBehaviourVectorDescription
     {
         [global::AssetManager.TypeTree.TypeTreeClass("map<StateKey,StateRange>")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourRanges")]
-        public global::UObjects.Collections.MultiDictionary<global::Sample.Builtin.StateKey, global::Sample.Builtin.StateRange> m_StateMachineBehaviourRanges { get; set; }
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourRanges", IsRequired = true)]
+        public global::AssetManager.Collections.MultiDictionary<global::Sample.Builtin.StateKey, global::Sample.Builtin.StateRange> m_StateMachineBehaviourRanges { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<unsigned int>")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourIndices")]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourIndices", IsRequired = true)]
         public uint[] m_StateMachineBehaviourIndices { get; set; }
     }
 
@@ -888,23 +889,23 @@ namespace Sample.Builtin
     public record StateMachineConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_StateConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_StateConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_c102ff05[] m_StateConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_AnyStateTransitionConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_AnyStateTransitionConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_6ca3c339[] m_AnyStateTransitionConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_SelectorStateConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_SelectorStateConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_982ee56f[] m_SelectorStateConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_DefaultState")]
+        [global::PolyType.PropertyShape(Name = "m_DefaultState", IsRequired = true)]
         public uint m_DefaultState { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_SynchronizedLayerCount")]
+        [global::PolyType.PropertyShape(Name = "m_SynchronizedLayerCount", IsRequired = true)]
         public uint m_SynchronizedLayerCount { get; set; }
     }
 
@@ -912,11 +913,11 @@ namespace Sample.Builtin
     public record struct StateRange
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_StartIndex")]
+        [global::PolyType.PropertyShape(Name = "m_StartIndex", IsRequired = true)]
         public uint m_StartIndex { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_Count")]
+        [global::PolyType.PropertyShape(Name = "m_Count", IsRequired = true)]
         public uint m_Count { get; set; }
     }
 
@@ -924,55 +925,55 @@ namespace Sample.Builtin
     public record TransitionConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<OffsetPtr>")]
-        [global::PolyType.PropertyShape(Name = "m_ConditionConstantArray")]
+        [global::PolyType.PropertyShape(Name = "m_ConditionConstantArray", IsRequired = true)]
         public global::Sample.Builtin.OffsetPtr_91ef57d5[] m_ConditionConstantArray { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_DestinationState")]
+        [global::PolyType.PropertyShape(Name = "m_DestinationState", IsRequired = true)]
         public uint m_DestinationState { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_FullPathID")]
+        [global::PolyType.PropertyShape(Name = "m_FullPathID", IsRequired = true)]
         public uint m_FullPathID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ID")]
+        [global::PolyType.PropertyShape(Name = "m_ID", IsRequired = true)]
         public uint m_ID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_UserID")]
+        [global::PolyType.PropertyShape(Name = "m_UserID", IsRequired = true)]
         public uint m_UserID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_TransitionDuration")]
+        [global::PolyType.PropertyShape(Name = "m_TransitionDuration", IsRequired = true)]
         public float m_TransitionDuration { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_TransitionOffset")]
+        [global::PolyType.PropertyShape(Name = "m_TransitionOffset", IsRequired = true)]
         public float m_TransitionOffset { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "m_ExitTime")]
+        [global::PolyType.PropertyShape(Name = "m_ExitTime", IsRequired = true)]
         public float m_ExitTime { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_HasExitTime")]
+        [global::PolyType.PropertyShape(Name = "m_HasExitTime", IsRequired = true)]
         public bool m_HasExitTime { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_HasFixedDuration")]
+        [global::PolyType.PropertyShape(Name = "m_HasFixedDuration", IsRequired = true)]
         public bool m_HasFixedDuration { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("int")]
-        [global::PolyType.PropertyShape(Name = "m_InterruptionSource")]
+        [global::PolyType.PropertyShape(Name = "m_InterruptionSource", IsRequired = true)]
         public int m_InterruptionSource { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_OrderedInterruption")]
+        [global::PolyType.PropertyShape(Name = "m_OrderedInterruption", IsRequired = true)]
         public bool m_OrderedInterruption { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_CanTransitionToSelf")]
+        [global::PolyType.PropertyShape(Name = "m_CanTransitionToSelf", IsRequired = true)]
         public bool m_CanTransitionToSelf { get; set; }
     }
 
@@ -980,27 +981,27 @@ namespace Sample.Builtin
     public record ValueArray
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float3>")]
-        [global::PolyType.PropertyShape(Name = "m_PositionValues")]
+        [global::PolyType.PropertyShape(Name = "m_PositionValues", IsRequired = true)]
         public global::UnityEngine.Vector3[] m_PositionValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float4>")]
-        [global::PolyType.PropertyShape(Name = "m_QuaternionValues")]
+        [global::PolyType.PropertyShape(Name = "m_QuaternionValues", IsRequired = true)]
         public global::Sample.Builtin.float4[] m_QuaternionValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float3>")]
-        [global::PolyType.PropertyShape(Name = "m_ScaleValues")]
+        [global::PolyType.PropertyShape(Name = "m_ScaleValues", IsRequired = true)]
         public global::UnityEngine.Vector3[] m_ScaleValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float>")]
-        [global::PolyType.PropertyShape(Name = "m_FloatValues")]
+        [global::PolyType.PropertyShape(Name = "m_FloatValues", IsRequired = true)]
         public float[] m_FloatValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<int>")]
-        [global::PolyType.PropertyShape(Name = "m_IntValues")]
+        [global::PolyType.PropertyShape(Name = "m_IntValues", IsRequired = true)]
         public int[] m_IntValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<bool>")]
-        [global::PolyType.PropertyShape(Name = "m_BoolValues")]
+        [global::PolyType.PropertyShape(Name = "m_BoolValues", IsRequired = true)]
         public bool[] m_BoolValues { get; set; }
     }
 
@@ -1008,7 +1009,7 @@ namespace Sample.Builtin
     public record ValueArrayConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("vector<ValueConstant>")]
-        [global::PolyType.PropertyShape(Name = "m_ValueArray")]
+        [global::PolyType.PropertyShape(Name = "m_ValueArray", IsRequired = true)]
         public global::Sample.Builtin.ValueConstant[] m_ValueArray { get; set; }
     }
 
@@ -1016,15 +1017,15 @@ namespace Sample.Builtin
     public record struct ValueConstant
     {
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ID")]
+        [global::PolyType.PropertyShape(Name = "m_ID", IsRequired = true)]
         public uint m_ID { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_Type")]
+        [global::PolyType.PropertyShape(Name = "m_Type", IsRequired = true)]
         public uint m_Type { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_Index")]
+        [global::PolyType.PropertyShape(Name = "m_Index", IsRequired = true)]
         public uint m_Index { get; set; }
     }
 
@@ -1032,19 +1033,19 @@ namespace Sample.Builtin
     public record struct float4
     {
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "x")]
+        [global::PolyType.PropertyShape(Name = "x", IsRequired = true)]
         public float x { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "y")]
+        [global::PolyType.PropertyShape(Name = "y", IsRequired = true)]
         public float y { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "z")]
+        [global::PolyType.PropertyShape(Name = "z", IsRequired = true)]
         public float z { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "w")]
+        [global::PolyType.PropertyShape(Name = "w", IsRequired = true)]
         public float w { get; set; }
     }
 }
