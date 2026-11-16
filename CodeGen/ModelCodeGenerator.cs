@@ -40,11 +40,10 @@ public static class ModelCodeGenerator
             options.CustomClassNamespace,
             StringComparison.Ordinal
         );
-        string builtinDirectory = Path.Combine(
+        string builtinDirectory = GetNamespaceDirectory(
             generatedRoot,
             options.BuiltinClassNamespace
         );
-        Directory.CreateDirectory(builtinDirectory);
 
         WriteTypeFile(
             Path.Combine(builtinDirectory, UnityObjectClassName + ".cs"),
@@ -65,11 +64,10 @@ public static class ModelCodeGenerator
         string customDirectory = null;
         if (!sameNamespace && customModels.Count > 0)
         {
-            customDirectory = Path.Combine(
+            customDirectory = GetNamespaceDirectory(
                 generatedRoot,
                 options.CustomClassNamespace
             );
-            Directory.CreateDirectory(customDirectory);
         }
 
         foreach (UnityObjectModel model in customModels
@@ -119,6 +117,21 @@ public static class ModelCodeGenerator
                 );
             }
         }
+    }
+
+    private static string GetNamespaceDirectory(
+        string generatedRoot,
+        string outputNamespace)
+    {
+        string directory = generatedRoot;
+        foreach (string segment in outputNamespace.Split(
+            '.',
+            StringSplitOptions.RemoveEmptyEntries))
+        {
+            directory = Path.Combine(directory, segment);
+        }
+        Directory.CreateDirectory(directory);
+        return directory;
     }
 
     private static TypeDeclarationSyntax CreateEmptyUnityObject(string outputNamespace)
