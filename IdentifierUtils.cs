@@ -1,9 +1,11 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace AssetClassGenerator;
 
-public static partial class IdentifierUtils
+public static class IdentifierUtils
 {
     // A conservative set of C# keywords and contextual keywords (keeps common ones).
     // If you need absolute correctness for a particular C# version, extend this set.
@@ -48,6 +50,28 @@ public static partial class IdentifierUtils
             return false;
 
         return true;
+    }
+
+    /// <summary>
+    /// Adds <paramref name="identifier"/> to <paramref name="usedIdentifiers"/> and
+    /// appends a numeric suffix until the name is unique.
+    /// </summary>
+    public static string MakeUniqueIdentifier(
+        string identifier,
+        ISet<string> usedIdentifiers)
+    {
+        ArgumentNullException.ThrowIfNull(identifier);
+        ArgumentNullException.ThrowIfNull(usedIdentifiers);
+
+        string candidate = identifier;
+        int suffix = 1;
+        while (!usedIdentifiers.Add(candidate))
+        {
+            candidate = $"{identifier}_{suffix}";
+            ++suffix;
+        }
+
+        return candidate;
     }
 
     /// <summary>
@@ -118,47 +142,5 @@ public static partial class IdentifierUtils
         }
 
         return result;
-    }
-
-    [GeneratedRegex(@"PPtr<\$(?<clsName>.+)>")]
-    private static partial Regex PPtrEscapeRegex();
-
-    public static string EscapeTypeName(string typeName)
-    {
-        Match m = PPtrEscapeRegex().Match(typeName);
-        if (m.Success)
-        {
-            return $"PPtr<{m.Groups["clsName"].Value}>";
-        }
-        return typeName;
-    }
-
-    private static readonly Dictionary<string, string> s_typeNameRemap = new()
-    {
-        { "PPtr<Object>", "PPtr<UnityObject>" },
-        { "PPtr<Component>", "PPtr<UnityComponent>" },
-        { "Matrix4x4f", "Matrix4x4" },
-        { "Quaternionf", "Quaternion" }, 
-        { "Vector2f", "Vector2" }, 
-        { "Vector3f", "Vector3" }, 
-        { "Vector4f", "Vector4" },
-        { "float3", "Vector3" },
-        { "GUID", "Guid" }
-    };
-
-    public static string RemapTypeName(string typeName)
-    {
-        if (s_typeNameRemap.TryGetValue(typeName, out var remapped))
-        {
-            return remapped;
-        }
-        return typeName;
-    }
-
-    public static string ProcessTypeName(string typeName)
-    {
-        var tn = EscapeTypeName(typeName);
-        tn = RemapTypeName(tn);
-        return tn;
     }
 }

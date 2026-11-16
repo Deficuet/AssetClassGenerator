@@ -1,6 +1,8 @@
 ﻿using AssetManager.TypeTree;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 
 namespace AssetClassGenerator;
 
@@ -9,6 +11,8 @@ public sealed class GeneratorOptions
     public string ClassTpkPath { get; set; }
 
     public string BuiltinClassNamespace { get; set; }
+
+    public string UnityVersion { get; set; }
 
     public string GameAssemblyPath { get; set; }
 
@@ -79,9 +83,10 @@ public sealed class GeneratorOptions
         RequireNonEmpty(ClassTpkPath, nameof(ClassTpkPath));
         RequireNonEmpty(BuiltinClassNamespace, nameof(BuiltinClassNamespace));
         RequireValidNamespace(BuiltinClassNamespace, nameof(BuiltinClassNamespace));
+        RequireNonEmpty(UnityVersion, nameof(UnityVersion));
         RequireExistingFile(ClassTpkPath, nameof(ClassTpkPath));
 
-        CustomClassSources ??= new List<CustomClassSource>();
+        CustomClassSources ??= [];
         if (CustomClassSources.Count == 0)
         {
             return;
