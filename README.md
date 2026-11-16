@@ -67,8 +67,8 @@ AssetClassGenerator.exe <path/to/options.json>
 | `GUID` | `Guid` | `AssetsTools.NET.GUID128` |
 | `Hash128` | `Hash128` | `AssetsTools.NET.Hash128` |
 | `PPtr<T>` | `PPtr` | `AssetsTools.NET.AssetPPtr` |
-| `map` | `Map` | `UObjects.Collections.MultiDictionary<K,V>` |
-| `pair` | `Pair` | `UObjects.Collections.MapPair<K,V>` |
+| `map` | `Map` | `AssetManager.Collections.MultiDictionary<K,V>` |
+| `pair` | `Pair` | `AssetManager.Collections.MapPair<K,V>` |
 
 `float4` has the same shape as `Vector4f`/`Quaternionf` but intentionally has no `TypeInfoMap` entry, so it remains a generated `record struct float4`.
 

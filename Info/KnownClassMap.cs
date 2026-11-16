@@ -7,8 +7,8 @@ namespace AssetClassGenerator.Info
     {
         public static readonly Dictionary<NodeDataType, string> NodeTypeMap = new()
         {
-            [NodeDataType.Pair] = "UObjects.Collections.MapPair",
-            [NodeDataType.Map] = "UObjects.Collections.MultiDictionary"
+            [NodeDataType.Pair] = "AssetManager.Collections.MapPair",
+            [NodeDataType.Map] = "AssetManager.Collections.MultiDictionary"
         };
 
         public static readonly Dictionary<string, TypeInfo[]> TypeInfoMap = new()

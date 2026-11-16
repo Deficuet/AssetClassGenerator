@@ -285,13 +285,47 @@ public class MainClass
     //private const string METADATA_PATH = @"D:\self\Programs\AzurPromiliaTest3\reveng\il2cpp\global-metadata_dec.dat";
     //private readonly static UnityVersion DefaultVersion = new("2022.3.62f3");
 
-    //private static int Main2(string[] args)
+    //private static int Main(string[] args)
     //{
     //    var manager = new AssetsManager();
     //    var pkgFile = manager.LoadClassPackage(CLASS_TPK_PATH);
-    //    var dataFile = pkgFile.GetClassDatabase(DefaultVersion);
+    //    var classDb = pkgFile.GetClassDatabase(DefaultVersion);
+    //    var type = classDb.FindAssetClassByID(
+    //        (int)AssetClassID.NamedObject
+    //    );
 
-    //    TypeTreeUtils.TryGetBuiltinTypeTree(dataFile, AssetClassID.PlayableDirector, out var tree);
+    //    if (type == null)
+    //    {
+    //        Console.WriteLine("NamedObject not found");
+    //    }
+    //    else
+    //    {
+    //        Console.WriteLine(
+    //            $"Name: {classDb.GetString(type.Name)}"
+    //        );
+
+    //        Console.WriteLine(
+    //            $"ClassID: {type.ClassId}"
+    //        );
+
+    //        Console.WriteLine(
+    //            $"Flags: {type.Flags}"
+    //        );
+
+    //        Console.WriteLine(
+    //            $"EditorRootNode: {type.EditorRootNode != null}"
+    //        );
+
+    //        Console.WriteLine(
+    //            $"ReleaseRootNode: {type.ReleaseRootNode != null}"
+    //        );
+
+    //        Console.WriteLine(
+    //            $"PreferredNode: {type.GetPreferredNode(false) != null}"
+    //        );
+    //    }
+
+    //    TypeTreeUtils.TryGetBuiltinTypeTree(classDb, AssetClassID.NamedObject, out var tree);
 
     //    //var existClassIdList = new List<int>();
     //    //foreach (var classId in Enum.GetValues<AssetClassID>())
