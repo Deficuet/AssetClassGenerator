@@ -50,17 +50,6 @@ public static class ModelNaming
                 .GroupBy(model => model.Name, StringComparer.Ordinal)
                 .FirstOrDefault(group => group.Count() > 1);
 
-        UnityObjectModel reservedUnityObject = builtinModels.FirstOrDefault(
-            model => string.Equals(model.Name, "UnityObject", StringComparison.Ordinal)
-        );
-        if (reservedUnityObject != null)
-        {
-            throw new InvalidDataException(
-                "A built-in class is named 'UnityObject', which conflicts with " +
-                "the generated UnityObject base class."
-            );
-        }
-
         if (duplicateBuiltin != null)
         {
             string classIds = string.Join(
@@ -81,7 +70,6 @@ public static class ModelNaming
         var usedNames = new HashSet<string>(StringComparer.Ordinal);
         if (sameNamespace)
         {
-            usedNames.Add("UnityObject");
             foreach (UnityObjectModel model in builtinModels)
             {
                 usedNames.Add(model.Name);
@@ -122,7 +110,6 @@ public static class ModelNaming
                 StringComparer.Ordinal
             )
         };
-        reservedNamesByNamespace[builtinNamespace].Add("UnityObject");
         if (string.Equals(builtinNamespace, customNamespace, StringComparison.Ordinal))
         {
             reservedNamesByNamespace[builtinNamespace].UnionWith(

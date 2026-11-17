@@ -18,12 +18,14 @@
 
 ## Pipeline
 
-`GeneratorOptions` -> `AssetsManager`/`ClassDatabaseFile` -> `TypeTreeUtils.TryGetBuiltinTypeTree` / `TryGetCustomMonoBehaviourTypeTree` -> `TypeTree.Build` -> `TypeModelBuilder` -> `DerivedClassPool` -> `InheritanceResolver` -> `ModelNaming` -> `ModelCodeGenerator`.
+`GeneratorOptions` -> `AssetsManager`/`ClassDatabaseFile` -> `TypeTreeUtils.TryGetBuiltinTypeTree` / `TryGetCustomMonoBehaviourTypeTree` -> `TypeTreeBranch.Build` -> `TypeModelBuilder` -> `DerivedClassPool` -> `InheritanceResolver` -> `ModelNaming` -> `ModelCodeGenerator`.
 
 - `Model/TypeModelBuilder.cs` builds the model tree. It must consult `Info/KnownClassMap.TypeInfoMap` first; a node is known only when `node.Type` is a key and one listed `TypeInfo.ExpectedType` equals `node.DataType`.
 - `PPtr` is special-cased: it maps to `AssetsTools.NET.AssetPPtr` and is not a value type.
+- `int2` and `int3` map to `UnityEngine.Vector2Int` and `UnityEngine.Vector3Int` through `Pos2Int` / `Pos3Int`.
 - Unmatched structures, including `float4`, fall through to ordinary derived-class generation.
 - `InheritanceResolver` uses `Info/UnityObjectInheritanceInfo.BaseTypeMap` and prefix member matching; matched parent members are removed from the generated child.
+- `KnownClassMap.UnityObjectFullyQualifiedName` is the root base for generated Unity object classes. It defaults to `AssetManager.Classes.IUnityObject`; no `UnityObject` class is generated.
 - `DerivedClassPool` deduplicates by `StructureSignature`. `ModelNaming` appends `_<8 hex>` for same-name different structures, known-type-name collisions, Unity object name collisions, and invalid C# identifiers.
 - `ModelNaming` takes its known-name set from `KnownClassMap.TypeInfoMap.Keys`.
 - `ModelCodeGenerator` uses Testura.Code `BuildWithoutNamespace` plus Roslyn `NamespaceDeclarationSyntax`. `RoslynUtils.InsertStructKeyword` converts records to record structs.
@@ -35,13 +37,14 @@
 - `Generated` is recreated at the start of every run in the process current directory.
 - Namespaces become nested folders: `Sample.Builtin` -> `Generated/Sample/Builtin/`.
 - Each Unity object class is a separate `.cs` file; all derived classes for a namespace go into `classes.cs`.
+- No `UnityObject.cs` is generated. Classes without a generated parent implement `KnownClassMap.UnityObjectFullyQualifiedName` directly.
 - Generated files contain no `using` directives. Primitives/`string` use keywords; all other types, base classes, and attributes use `global::` fully qualified names.
 - Every member is annotated with `[TypeTreeClass(...)]` and `[PropertyShape(Name = "...", IsRequired = true)]`.
 
 ## Gotchas
 
 - Built-in generation iterates every `AssetClassID`. Non-object IDs and IDs without usable type trees are skipped and printed; this is expected.
-- Some built-in type trees have a root `Type` equal to a base class (for example `Behaviour` has root type `Component`). Use `ClassDatabaseType.Name` (`classDb.GetString(type.Name)`) as the generated Unity object class name, not `TypeTree.Type`.
+- Some built-in type trees have a root `Type` equal to a base class (for example `Behaviour` has root type `Component`). Use `ClassDatabaseType.Name` (`classDb.GetString(type.Name)`) as the generated Unity object class name, not `TypeTreeBranch.Type`.
 - `ColorRGBA` has two known structures: four float channels maps to `UnityEngine.Color`, packed `rgba` maps to `UnityEngine.Color32`.
 - `float4` intentionally has no `TypeInfoMap` entry; it remains a generated `record struct float4`.
 - `float3` is in `TypeInfoMap` and maps to `UnityEngine.Vector3`.

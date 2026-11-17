@@ -92,7 +92,7 @@ public sealed class MapTypeReference : TypeReference
 
     public override bool IsValueType => false;
 
-    public override string OriginalName => $"{rootTypeName}<{Key.OriginalName},{Value.OriginalName}>";
+    public override string OriginalName => $"{rootTypeName}<{Key.OriginalName}, {Value.OriginalName}>";
 
     internal override string Signature => $"M:{definitionName}<{Key.Signature},{Value.Signature}>";
 

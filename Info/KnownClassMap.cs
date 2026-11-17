@@ -5,6 +5,9 @@ namespace AssetClassGenerator.Info
 {
     public static class KnownClassMap
     {
+        public const string UnityObjectFullyQualifiedName =
+            "AssetManager.Classes.IUnityObject";
+
         public static readonly Dictionary<NodeDataType, string> NodeTypeMap = new()
         {
             [NodeDataType.Pair] = "AssetManager.Collections.MapPair",
@@ -34,6 +37,14 @@ namespace AssetClassGenerator.Info
             {
                 new TypeInfo(NodeDataType.Pos3f, "UnityEngine.Vector3")
             },
+            ["int2_storage"] = new[]
+            {
+                new TypeInfo(NodeDataType.Pos2Int, "UnityEngine.Vector2Int")
+            },
+            ["int3_storage"] = new[]
+            {
+                new TypeInfo(NodeDataType.Pos3Int, "UnityEngine.Vector3Int")
+            },
             ["Vector4f"] = new[]
             {
                 new TypeInfo(NodeDataType.Pos4f, "UnityEngine.Vector4")
@@ -41,6 +52,10 @@ namespace AssetClassGenerator.Info
             ["float3"] = new[]
             {
                 new TypeInfo(NodeDataType.Pos3f, "UnityEngine.Vector3")
+            },
+            ["float4"] = new[]
+            {
+                new TypeInfo(NodeDataType.Pos4f, "UnityEngine.Quaternion")
             },
             ["GUID"] = new[]
             {

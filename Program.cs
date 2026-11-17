@@ -90,10 +90,10 @@ public class MainClass
                 continue;
             }
 
-            TypeTree tree;
+            TypeTreeBranch tree;
             try
             {
-                tree = TypeTree.Build(result);
+                tree = TypeTreeBranch.Build(result);
             }
             catch (Exception ex)
             {
@@ -148,7 +148,7 @@ public class MainClass
                 Console.Error.WriteLine(
                     "warning: MonoBehaviour was not found in the class database; " +
                     "custom classes will be generated without base fields and " +
-                    "will inherit UnityObject."
+                    "will implement IUnityObject."
                 );
                 monoBehaviourBaseField = new AssetTypeTemplateField
                 {
@@ -192,10 +192,10 @@ public class MainClass
                             continue;
                         }
 
-                        TypeTree tree;
+                        TypeTreeBranch tree;
                         try
                         {
-                            tree = TypeTree.Build(result);
+                            tree = TypeTreeBranch.Build(result);
                         }
                         catch (Exception ex)
                         {
@@ -235,7 +235,7 @@ public class MainClass
         {
             Console.Error.WriteLine(
                 "warning: built-in MonoBehaviour was not generated; " +
-                "custom classes will inherit UnityObject instead."
+                "custom classes will implement IUnityObject instead."
             );
         }
         InheritanceResolver.ResolveCustom(customModels, monoBehaviourModel);

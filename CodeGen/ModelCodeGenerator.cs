@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AssetClassGenerator.Info;
 using AssetClassGenerator.Model;
 using AssetClassGenerator.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -17,7 +18,6 @@ namespace AssetClassGenerator.CodeGen;
 
 public static class ModelCodeGenerator
 {
-    private const string UnityObjectClassName = "UnityObject";
     private const string TypeTreeSourceAttributeName = "global::AssetManager.TypeTree.TypeTreeSource";
     private const string TypeTreeClassAttributeName = "global::AssetManager.TypeTree.TypeTreeClass";
     private const string PropertyShapeAttributeName = "global::PolyType.PropertyShape";
@@ -45,19 +45,13 @@ public static class ModelCodeGenerator
             options.BuiltinClassNamespace
         );
 
-        WriteTypeFile(
-            Path.Combine(builtinDirectory, UnityObjectClassName + ".cs"),
-            options.BuiltinClassNamespace,
-            new[] { CreateEmptyUnityObject(options.BuiltinClassNamespace) }
-        );
-
         foreach (UnityObjectModel model in builtinModels
             .OrderBy(model => model.Name, StringComparer.Ordinal))
         {
             WriteTypeFile(
                 Path.Combine(builtinDirectory, model.Name + ".cs"),
                 options.BuiltinClassNamespace,
-                new[] { CreateUnityObjectClass(model, options.BuiltinClassNamespace) }
+                new[] { CreateUnityObjectClass(model) }
             );
         }
 
@@ -79,7 +73,7 @@ public static class ModelCodeGenerator
                     model.Name + ".cs"
                 ),
                 model.OutputNamespace,
-                new[] { CreateUnityObjectClass(model, options.BuiltinClassNamespace) }
+                new[] { CreateUnityObjectClass(model) }
             );
         }
 
@@ -134,22 +128,8 @@ public static class ModelCodeGenerator
         return directory;
     }
 
-    private static TypeDeclarationSyntax CreateEmptyUnityObject(string outputNamespace)
-    {
-        TypeDeclarationSyntax type = new ClassBuilder(
-            UnityObjectClassName,
-            outputNamespace,
-            NamespaceType.Classic
-        )
-            .WithModifiers(Modifiers.Public)
-            .BuildWithoutNamespace();
-
-        return EnsureBody(type);
-    }
-
     private static TypeDeclarationSyntax CreateUnityObjectClass(
-        UnityObjectModel model,
-        string builtinNamespace)
+        UnityObjectModel model)
     {
         ClassBuilder builder = new ClassBuilder(
             model.Name,
@@ -165,7 +145,7 @@ public static class ModelCodeGenerator
 
         string baseTypeName = model.BaseModel != null
             ? $"global::{model.BaseModel.OutputNamespace}.{model.BaseModel.Name}"
-            : $"global::{builtinNamespace}.{UnityObjectClassName}";
+            : $"global::{KnownClassMap.UnityObjectFullyQualifiedName}";
         builder = builder.ThatInheritFrom(CustomType.Create(baseTypeName));
 
         return EnsureBody(builder.BuildWithoutNamespace());

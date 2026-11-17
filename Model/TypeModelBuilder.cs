@@ -18,7 +18,7 @@ public sealed class TypeModelBuilder
     }
 
     public UnityObjectModel BuildUnityObject(
-        TypeTree root,
+        TypeTreeBranch root,
         string name,
         AssetClassID? classId,
         CustomClassSource customSource,
@@ -36,12 +36,12 @@ public sealed class TypeModelBuilder
     }
 
     private List<MemberModel> BuildMembers(
-        IEnumerable<TypeTree> children,
+        IEnumerable<TypeTreeBranch> children,
         ISet<DerivedClassModel> referencedDerived)
     {
         var members = new List<MemberModel>();
         var usedNames = new HashSet<string>(StringComparer.Ordinal);
-        foreach (TypeTree child in children)
+        foreach (TypeTreeBranch child in children)
         {
             TypeReference type = BuildTypeReference(child, referencedDerived);
             string baseName = IdentifierUtils.IsValidIdentifier(child.Name)
@@ -54,7 +54,7 @@ public sealed class TypeModelBuilder
     }
 
     private TypeReference BuildTypeReference(
-        TypeTree node,
+        TypeTreeBranch node,
         ISet<DerivedClassModel> referencedDerived)
     {
         if (KnownClassMap.TypeInfoMap.TryGetValue(node.Type, out TypeInfo[] typeInfos))
@@ -106,8 +106,6 @@ public sealed class TypeModelBuilder
                 return Known(node, "bool", true);
             case NodeDataType.String:
                 return Known(node, "string", false);
-            case NodeDataType.ByteArray:
-                return BuildByteArrayType(node);
             case NodeDataType.Typeless:
                 return BuildTypelessType(node);
             case NodeDataType.Array:
@@ -123,6 +121,8 @@ public sealed class TypeModelBuilder
             case NodeDataType.Pos2f:
             case NodeDataType.Pos3f:
             case NodeDataType.Pos4f:
+            case NodeDataType.Pos2Int:
+            case NodeDataType.Pos3Int:
             case NodeDataType.ColorRGBA4f:
             case NodeDataType.ColorRGBA32:
             case NodeDataType.Matrix4x4f:
@@ -137,26 +137,19 @@ public sealed class TypeModelBuilder
         }
     }
 
-    private static ArrayTypeReference BuildByteArrayType(TypeTree node)
+    private static ArrayTypeReference BuildTypelessType(TypeTreeBranch node)
     {
-        TypeTree elementNode = node.Children[0].Children[1];
-        var element = new KnownTypeReference(elementNode.Type, "byte", true);
-        return new ArrayTypeReference(node.Type, element);
-    }
-
-    private static ArrayTypeReference BuildTypelessType(TypeTree node)
-    {
-        TypeTree elementNode = node.Children[1];
+        TypeTreeBranch elementNode = node.Children[1];
         var element = new KnownTypeReference(elementNode.Type, "byte", true);
         return new ArrayTypeReference(node.Type, element);
     }
 
     private MapTypeReference BuildMapType(
-        TypeTree node,
+        TypeTreeBranch node,
         NodeDataType kind,
         ISet<DerivedClassModel> referencedDerived)
     {
-        TypeTree pairNode = kind == NodeDataType.Map
+        TypeTreeBranch pairNode = kind == NodeDataType.Map
             ? node.Children[0].Children[1]
             : node;
 
@@ -169,7 +162,7 @@ public sealed class TypeModelBuilder
     }
 
     private DerivedTypeReference BuildDerivedType(
-        TypeTree node,
+        TypeTreeBranch node,
         ISet<DerivedClassModel> referencedDerived)
     {
         DerivedClassModel model = GetOrAddDerived(node, referencedDerived);
@@ -177,7 +170,7 @@ public sealed class TypeModelBuilder
     }
 
     private DerivedClassModel GetOrAddDerived(
-        TypeTree node,
+        TypeTreeBranch node,
         ISet<DerivedClassModel> referencedDerived)
     {
         List<MemberModel> members = BuildMembers(node.Children, referencedDerived);
@@ -187,7 +180,7 @@ public sealed class TypeModelBuilder
     }
 
     private static KnownTypeReference Known(
-        TypeTree node,
+        TypeTreeBranch node,
         string generatedName,
         bool isValueType)
     {

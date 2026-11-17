@@ -43,13 +43,13 @@ AssetClassGenerator.exe <path/to/options.json>
 
 ## Features
 
-1. **Built-in Unity object classes**: every `AssetClassID` is tried; IDs without a usable type tree are skipped and reported. All generated Unity object classes are `public class` and inherit `UnityObject` directly or through another generated Unity object class.
-2. **Custom MonoBehaviours**: `CustomClassSources` entries are resolved through IL2CPP and generated as `public class` types inheriting the built-in `MonoBehaviour` when its type tree is available (otherwise `UnityObject`).
-3. **Shared `UnityObject` base**: an empty `public class UnityObject` is always generated in `BuiltinClassNamespace`.
+1. **Built-in Unity object classes**: every `AssetClassID` is tried; IDs without a usable type tree are skipped and reported. All generated Unity object classes are `public class` and implement `AssetManager.Classes.IUnityObject` directly or through another generated Unity object class.
+2. **Custom MonoBehaviours**: `CustomClassSources` entries are resolved through IL2CPP and generated as `public class` types inheriting the built-in `MonoBehaviour` when its type tree is available (otherwise implementing `AssetManager.Classes.IUnityObject`).
+3. **Root Unity object base**: `Info/KnownClassMap.UnityObjectFullyQualifiedName` defines the fully qualified root base type. It defaults to `AssetManager.Classes.IUnityObject`; no `UnityObject` class is generated.
 4. **Known type handling**: `Info/KnownClassMap.TypeInfoMap` maps a type-tree class name and an expected `NodeDataType` to a fully qualified known type. The same class name may map to several structures; the first matching structure wins. PPtr is handled separately because its class name varies by target.
 5. **Derived classes**: type-tree classes that are not known types become generated `record` or `record struct` types. A derived class is a `record struct` only when every member type is a value type.
 6. **Deduplication and naming**: structurally identical derived classes share one model. Same-name classes with different structures, names that collide with known type names, names that collide with Unity object classes, and invalid C# identifiers get an `_<8 hex>` suffix derived from the structural hash. For example, a type-tree class named `string` with an `id` member is generated as `string_<hash>` and can be used as a `MultiDictionary` key instead of C# `string`.
-7. **Inheritance**: `Info/UnityObjectInheritanceInfo.BaseTypeMap` defines the potential base class of a built-in Unity object. The parent type tree's members are matched against the start of the child's member list; matched members are removed from the generated class and the generated class inherits the parent. Otherwise it inherits `UnityObject`.
+7. **Inheritance**: `Info/UnityObjectInheritanceInfo.BaseTypeMap` defines the potential base class of a built-in Unity object. The parent type tree's members are matched against the start of the child's member list; matched members are removed from the generated class and the generated class inherits the parent. Otherwise it implements the configured root Unity object base.
 8. **Nested output folders**: `Generated` in the process current directory is recreated for every run. A namespace is written as one folder per segment, for example `Sample.Builtin` becomes `Generated/Sample/Builtin/`. Each Unity object class gets its own `.cs` file; all derived classes for that namespace are written to `classes.cs`.
 9. **No `using` directives**: primitive types and `string` use C# keywords; every other type, base class, and attribute is written with a `global::` fully qualified name.
 10. **Required members**: every generated member carries `[PropertyShape(Name = "...", IsRequired = true)]`. PolyType therefore treats all members as required when constructing an object and can report fields that are missing from the input.
@@ -62,6 +62,8 @@ AssetClassGenerator.exe <path/to/options.json>
 | `ColorRGBA` with packed `rgba` uint | `ColorRGBA32` | `UnityEngine.Color32` |
 | `Vector2f` with `x/y` floats | `Pos2f` | `UnityEngine.Vector2` |
 | `Vector3f` or `float3` with `x/y/z` floats | `Pos3f` | `UnityEngine.Vector3` |
+| `int2` with `x/y` ints | `Pos2Int` | `UnityEngine.Vector2Int` |
+| `int3` with `x/y/z` ints | `Pos3Int` | `UnityEngine.Vector3Int` |
 | `Vector4f` with `x/y/z/w` floats | `Pos4f` | `UnityEngine.Vector4` |
 | `Quaternionf` with `x/y/z/w` floats | `Pos4f` | `UnityEngine.Quaternion` |
 | `Matrix4x4f` with `e00..e33` floats | `Matrix4x4f` | `UnityEngine.Matrix4x4` |
@@ -78,7 +80,6 @@ AssetClassGenerator.exe <path/to/options.json>
 The example is the built-in `AnimatorController` class in Unity `2022.3.62f3`, generated into `Sample.Builtin`. The generated files are:
 
 ```
-Generated/Sample/Builtin/UnityObject.cs
 Generated/Sample/Builtin/AnimatorController.cs
 Generated/Sample/Builtin/classes.cs
 ```
@@ -375,7 +376,7 @@ AnimatorController Base -1 False
 namespace Sample.Builtin
 {
     [global::AssetManager.TypeTree.TypeTreeSource("UnityEngine", "UnityEngine", "AnimatorController")]
-    public class AnimatorController : global::Sample.Builtin.UnityObject
+    public class AnimatorController : global::AssetManager.Classes.IUnityObject
     {
         [global::AssetManager.TypeTree.TypeTreeClass("string")]
         [global::PolyType.PropertyShape(Name = "m_Name", IsRequired = true)]
@@ -389,7 +390,7 @@ namespace Sample.Builtin
         [global::PolyType.PropertyShape(Name = "m_Controller", IsRequired = true)]
         public global::Sample.Builtin.ControllerConstant m_Controller { get; set; }
 
-        [global::AssetManager.TypeTree.TypeTreeClass("map<unsigned int,string>")]
+        [global::AssetManager.TypeTree.TypeTreeClass("map<unsigned int, string>")]
         [global::PolyType.PropertyShape(Name = "m_TOS", IsRequired = true)]
         public global::AssetManager.Collections.MultiDictionary<uint, string> m_TOS { get; set; }
 
@@ -876,7 +877,7 @@ namespace Sample.Builtin
     [global::AssetManager.TypeTree.TypeTreeClass("StateMachineBehaviourVectorDescription")]
     public record StateMachineBehaviourVectorDescription
     {
-        [global::AssetManager.TypeTree.TypeTreeClass("map<StateKey,StateRange>")]
+        [global::AssetManager.TypeTree.TypeTreeClass("map<StateKey, StateRange>")]
         [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourRanges", IsRequired = true)]
         public global::AssetManager.Collections.MultiDictionary<global::Sample.Builtin.StateKey, global::Sample.Builtin.StateRange> m_StateMachineBehaviourRanges { get; set; }
 
