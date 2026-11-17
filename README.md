@@ -62,10 +62,11 @@ AssetClassGenerator.exe <path/to/options.json>
 | `ColorRGBA` with packed `rgba` uint | `ColorRGBA32` | `UnityEngine.Color32` |
 | `Vector2f` with `x/y` floats | `Pos2f` | `UnityEngine.Vector2` |
 | `Vector3f` or `float3` with `x/y/z` floats | `Pos3f` | `UnityEngine.Vector3` |
-| `int2` with `x/y` ints | `Pos2Int` | `UnityEngine.Vector2Int` |
-| `int3` with `x/y/z` ints | `Pos3Int` | `UnityEngine.Vector3Int` |
+| `int2_storage` with `x/y` ints | `Pos2Int` | `UnityEngine.Vector2Int` |
+| `int3_storage` with `x/y/z` ints | `Pos3Int` | `UnityEngine.Vector3Int` |
 | `Vector4f` with `x/y/z/w` floats | `Pos4f` | `UnityEngine.Vector4` |
 | `Quaternionf` with `x/y/z/w` floats | `Pos4f` | `UnityEngine.Quaternion` |
+| `float4` with `x/y/z/w` floats | `Pos4f` | `UnityEngine.Quaternion` |
 | `Matrix4x4f` with `e00..e33` floats | `Matrix4x4f` | `UnityEngine.Matrix4x4` |
 | `GUID` | `Guid` | `AssetsTools.NET.GUID128` |
 | `Hash128` | `Hash128` | `AssetsTools.NET.Hash128` |
@@ -73,7 +74,7 @@ AssetClassGenerator.exe <path/to/options.json>
 | `map` | `Map` | `AssetManager.Collections.MultiDictionary<K,V>` |
 | `pair` | `Pair` | `AssetManager.Collections.MapPair<K,V>` |
 
-`float4` has the same shape as `Vector4f`/`Quaternionf` but intentionally has no `TypeInfoMap` entry, so it remains a generated `record struct float4`.
+`float3` maps to `UnityEngine.Vector3` and `float4` maps to `UnityEngine.Quaternion`. `int2_storage` and `int3_storage` map to `UnityEngine.Vector2Int` / `UnityEngine.Vector3Int`.
 
 ## Example
 
@@ -987,7 +988,7 @@ namespace Sample.Builtin
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float4>")]
         [global::PolyType.PropertyShape(Name = "m_QuaternionValues", IsRequired = true)]
-        public global::Sample.Builtin.float4[] m_QuaternionValues { get; set; }
+        public global::UnityEngine.Quaternion[] m_QuaternionValues { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<float3>")]
         [global::PolyType.PropertyShape(Name = "m_ScaleValues", IsRequired = true)]
@@ -1028,26 +1029,6 @@ namespace Sample.Builtin
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
         [global::PolyType.PropertyShape(Name = "m_Index", IsRequired = true)]
         public uint m_Index { get; set; }
-    }
-
-    [global::AssetManager.TypeTree.TypeTreeClass("float4")]
-    public record struct float4
-    {
-        [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "x", IsRequired = true)]
-        public float x { get; set; }
-
-        [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "y", IsRequired = true)]
-        public float y { get; set; }
-
-        [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "z", IsRequired = true)]
-        public float z { get; set; }
-
-        [global::AssetManager.TypeTree.TypeTreeClass("float")]
-        [global::PolyType.PropertyShape(Name = "w", IsRequired = true)]
-        public float w { get; set; }
     }
 }
 ```
