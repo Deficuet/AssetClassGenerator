@@ -141,7 +141,9 @@ public static class ModelCodeGenerator
             {
                 CreateTypeTreeSourceAttribute(model)
             }))
-            .WithProperties(model.Members.Select(CreateProperty).ToArray());
+            .WithProperties(model.Members
+                .Select(member => CreateProperty(member, includeOrder: true))
+                .ToArray());
 
         string baseTypeName = model.BaseModel != null
             ? $"global::{model.BaseModel.OutputNamespace}.{model.BaseModel.Name}"
@@ -163,7 +165,9 @@ public static class ModelCodeGenerator
             {
                 CreateTypeTreeClassAttribute(model.OriginalName)
             }))
-            .WithProperties(model.Members.Select(CreateProperty).ToArray());
+            .WithProperties(model.Members
+                .Select(member => CreateProperty(member, includeOrder: false))
+                .ToArray());
 
         TypeDeclarationSyntax type = builder.BuildWithoutNamespace();
         if (model.IsRecordStruct)
@@ -174,7 +178,9 @@ public static class ModelCodeGenerator
         return EnsureBody(type);
     }
 
-    private static PropertyDeclarationSyntax CreateProperty(MemberModel member)
+    private static PropertyDeclarationSyntax CreateProperty(
+        MemberModel member,
+        bool includeOrder)
     {
         PropertyDeclarationSyntax property = PropertyGenerator.Create(
             new AutoProperty(
@@ -188,7 +194,10 @@ public static class ModelCodeGenerator
         return property.WithAttributeLists(SyntaxFactory.List(new[]
         {
             CreateTypeTreeClassAttribute(member.Type.OriginalName),
-            CreatePropertyShapeAttribute(member.OriginalName)
+            CreatePropertyShapeAttribute(
+                member.OriginalName,
+                includeOrder ? member.Order : null
+            )
         }));
     }
 
@@ -220,15 +229,34 @@ public static class ModelCodeGenerator
         );
     }
 
-    private static AttributeListSyntax CreatePropertyShapeAttribute(string name)
+    private static AttributeListSyntax CreatePropertyShapeAttribute(
+        string name,
+        int? order)
     {
-        return CreateAttribute(
-            PropertyShapeAttributeName,
+        var arguments = new List<AttributeArgumentSyntax>
+        {
             SyntaxFactory.AttributeArgument(
                 SyntaxFactory.NameEquals("Name"),
                 null,
                 CreateStringLiteral(name)
-            ),
+            )
+        };
+
+        if (order.HasValue)
+        {
+            arguments.Add(
+                SyntaxFactory.AttributeArgument(
+                    SyntaxFactory.NameEquals("Order"),
+                    null,
+                    SyntaxFactory.LiteralExpression(
+                        SyntaxKind.NumericLiteralExpression,
+                        SyntaxFactory.Literal(order.Value)
+                    )
+                )
+            );
+        }
+
+        arguments.Add(
             SyntaxFactory.AttributeArgument(
                 SyntaxFactory.NameEquals("IsRequired"),
                 null,
@@ -236,6 +264,11 @@ public static class ModelCodeGenerator
                     SyntaxKind.TrueLiteralExpression
                 )
             )
+        );
+
+        return CreateAttribute(
+            PropertyShapeAttributeName,
+            arguments.ToArray()
         );
     }
 

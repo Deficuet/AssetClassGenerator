@@ -30,7 +30,8 @@
 - `DerivedClassPool` deduplicates by `StructureSignature`. `ModelNaming` appends `_<8 hex>` for same-name different structures, known-type-name collisions, Unity object name collisions, and invalid C# identifiers.
 - `ModelNaming` takes its known-name set from `KnownClassMap.TypeInfoMap.Keys`.
 - `ModelCodeGenerator` uses Testura.Code `BuildWithoutNamespace` plus Roslyn `NamespaceDeclarationSyntax`. `RoslynUtils.InsertStructKeyword` converts records to record structs.
-- `ModelCodeGenerator.CreatePropertyShapeAttribute` always emits both `Name` and `IsRequired = true`; every generated member is required for PolyType.
+- `ModelCodeGenerator.CreatePropertyShapeAttribute` always emits `Name` and `IsRequired = true`; for Unity object class members it also emits `Order` from `MemberModel.Order`. Derived class members never receive `Order`.
+- `MemberModel.Order` is the zero-based index of the member node in the original type-tree `Children` list. Inheritance removal keeps the surviving members' original `Order` values unchanged.
 - `MapPair` and `MultiDictionary` map to `AssetManager.Collections.MapPair` and `AssetManager.Collections.MultiDictionary`.
 
 ## Output
@@ -40,7 +41,7 @@
 - Each Unity object class is a separate `.cs` file; all derived classes for a namespace go into `classes.cs`.
 - No `UnityObject.cs` is generated. Classes without a generated parent implement `KnownClassMap.UnityObjectFullyQualifiedName` directly.
 - Generated files contain no `using` directives. Primitives/`string` use keywords; all other types, base classes, and attributes use `global::` fully qualified names.
-- Every member is annotated with `[TypeTreeClass(...)]` and `[PropertyShape(Name = "...", IsRequired = true)]`.
+- Every member is annotated with `[TypeTreeClass(...)]` and `[PropertyShape(Name = "...", IsRequired = true)]`. Unity object class members additionally include `Order`; derived class members do not.
 
 ## Gotchas
 
@@ -50,6 +51,7 @@
 - `float4` maps to `UnityEngine.Quaternion`; do not expect a generated `record struct float4`.
 - `float3` maps to `UnityEngine.Vector3`.
 - `int2_storage` maps to `UnityEngine.Vector2Int`; `int3_storage` maps to `UnityEngine.Vector3Int`.
+- `PropertyShape.Order` is only for Unity object class members. It is the original type-tree child index and must not be recomputed when inheritance removes parent members.
 - Every generated member is required for PolyType (`IsRequired = true`); do not drop it when changing code generation.
 - Cpp2IL-generated custom type trees can report `ByteSize = -1` for class-like nodes. Do not add `ByteSize` requirements to structural `NodeDataTypeHelper` predicates in AssetManager.
 - The old `TestMain` block in `Program.cs` is commented out and is not the entrypoint.

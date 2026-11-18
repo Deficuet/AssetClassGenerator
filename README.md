@@ -8,7 +8,7 @@ Generated declarations carry:
 
 - `AssetManager.TypeTree.TypeTreeSource` on every Unity object class, recording the original type-tree source.
 - `AssetManager.TypeTree.TypeTreeClass` on derived classes and on every member, recording the original type-tree class/type name.
-- `PolyType.PropertyShape` on every member, recording the original type-tree member name and setting `IsRequired = true`, so PolyType can reject input with missing fields when constructing a shape.
+- `PolyType.PropertyShape` on every member, recording the original type-tree member name, setting `IsRequired = true`, and on Unity object classes also setting `Order` to the member's index in the type-tree `Children` list.
 
 ## Usage
 
@@ -52,7 +52,7 @@ AssetClassGenerator.exe <path/to/options.json>
 7. **Inheritance**: `Info/UnityObjectInheritanceInfo.BaseTypeMap` defines the potential base class of a built-in Unity object. The parent type tree's members are matched against the start of the child's member list; matched members are removed from the generated class and the generated class inherits the parent. Otherwise it implements the configured root Unity object base.
 8. **Nested output folders**: `Generated` in the process current directory is recreated for every run. A namespace is written as one folder per segment, for example `Sample.Builtin` becomes `Generated/Sample/Builtin/`. Each Unity object class gets its own `.cs` file; all derived classes for that namespace are written to `classes.cs`.
 9. **No `using` directives**: primitive types and `string` use C# keywords; every other type, base class, and attribute is written with a `global::` fully qualified name.
-10. **Required members**: every generated member carries `[PropertyShape(Name = "...", IsRequired = true)]`. PolyType therefore treats all members as required when constructing an object and can report fields that are missing from the input.
+10. **Required members and order**: every generated member carries `[PropertyShape(Name = "...", IsRequired = true)]`. Unity object class members also carry `Order`, the zero-based index of the member node in the original type-tree `Children` list; inherited members keep their original `Order` after removal from the child. Derived classes do not get `Order`. PolyType therefore treats all members as required while producing a shape whose member order follows the type tree.
 
 ### Known type examples
 
@@ -380,35 +380,35 @@ namespace Sample.Builtin
     public class AnimatorController : global::AssetManager.Classes.IUnityObject
     {
         [global::AssetManager.TypeTree.TypeTreeClass("string")]
-        [global::PolyType.PropertyShape(Name = "m_Name", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_Name", Order = 0, IsRequired = true)]
         public string m_Name { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("unsigned int")]
-        [global::PolyType.PropertyShape(Name = "m_ControllerSize", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_ControllerSize", Order = 1, IsRequired = true)]
         public uint m_ControllerSize { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("ControllerConstant")]
-        [global::PolyType.PropertyShape(Name = "m_Controller", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_Controller", Order = 2, IsRequired = true)]
         public global::Sample.Builtin.ControllerConstant m_Controller { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("map<unsigned int, string>")]
-        [global::PolyType.PropertyShape(Name = "m_TOS", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_TOS", Order = 3, IsRequired = true)]
         public global::AssetManager.Collections.MultiDictionary<uint, string> m_TOS { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<PPtr<AnimationClip>>")]
-        [global::PolyType.PropertyShape(Name = "m_AnimationClips", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_AnimationClips", Order = 4, IsRequired = true)]
         public global::AssetsTools.NET.AssetPPtr[] m_AnimationClips { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("StateMachineBehaviourVectorDescription")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourVectorDescription", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviourVectorDescription", Order = 5, IsRequired = true)]
         public global::Sample.Builtin.StateMachineBehaviourVectorDescription m_StateMachineBehaviourVectorDescription { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("vector<PPtr<MonoBehaviour>>")]
-        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviours", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_StateMachineBehaviours", Order = 6, IsRequired = true)]
         public global::AssetsTools.NET.AssetPPtr[] m_StateMachineBehaviours { get; set; }
 
         [global::AssetManager.TypeTree.TypeTreeClass("bool")]
-        [global::PolyType.PropertyShape(Name = "m_MultiThreadedStateMachine", IsRequired = true)]
+        [global::PolyType.PropertyShape(Name = "m_MultiThreadedStateMachine", Order = 7, IsRequired = true)]
         public bool m_MultiThreadedStateMachine { get; set; }
     }
 }

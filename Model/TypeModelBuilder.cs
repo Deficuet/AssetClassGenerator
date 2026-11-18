@@ -25,7 +25,11 @@ public sealed class TypeModelBuilder
         string outputNamespace,
         ISet<DerivedClassModel> referencedDerived)
     {
-        List<MemberModel> members = BuildMembers(root.Children, referencedDerived);
+        List<MemberModel> members = BuildMembers(
+            root.Children,
+            referencedDerived,
+            assignOrder: true
+        );
         return new UnityObjectModel(
             name,
             classId,
@@ -37,10 +41,12 @@ public sealed class TypeModelBuilder
 
     private List<MemberModel> BuildMembers(
         IEnumerable<TypeTreeBranch> children,
-        ISet<DerivedClassModel> referencedDerived)
+        ISet<DerivedClassModel> referencedDerived,
+        bool assignOrder = false)
     {
         var members = new List<MemberModel>();
         var usedNames = new HashSet<string>(StringComparer.Ordinal);
+        int index = 0;
         foreach (TypeTreeBranch child in children)
         {
             TypeReference type = BuildTypeReference(child, referencedDerived);
@@ -48,7 +54,13 @@ public sealed class TypeModelBuilder
                 ? child.Name
                 : IdentifierUtils.ToCamelCaseIdentifier(child.Name);
             string name = IdentifierUtils.MakeUniqueIdentifier(baseName, usedNames);
-            members.Add(new MemberModel(type, child.Name, name));
+            members.Add(new MemberModel(
+                type,
+                child.Name,
+                name,
+                assignOrder ? index : null
+            ));
+            ++index;
         }
         return members;
     }

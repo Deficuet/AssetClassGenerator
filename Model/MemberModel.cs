@@ -10,10 +10,17 @@ public sealed class MemberModel
 
     public string Name { get; }
 
-    public MemberModel(TypeReference type, string originalName, string name)
+    public int? Order { get; }
+
+    public MemberModel(
+        TypeReference type,
+        string originalName,
+        string name,
+        int? order = null)
     {
         Type = type ?? throw new ArgumentNullException(nameof(type));
         OriginalName = originalName ?? throw new ArgumentNullException(nameof(originalName));
         Name = name ?? throw new ArgumentNullException(nameof(name));
+        Order = order;
     }
 }
